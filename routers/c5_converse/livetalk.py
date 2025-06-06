@@ -3,7 +3,6 @@
 from pathlib import Path # 절대경로로 변환
 import torchaudio
 from llama_cpp import Llama # gguf llm 파일 모델 실행
-import os, pickle
 
 # ==== 0. gguf 파일 직접 로딩 ==== 
 llm = Llama(model_path="/home/elicer/mindbridge/AI_model/gemma-3-4B-it-QAT-Q4_0.gguf",

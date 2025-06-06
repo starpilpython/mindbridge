@@ -6,6 +6,16 @@ from routers import router as all_router  # 라우터 가져오기
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
+
+from DB.database import Base, engine
+from DB.models import ChatHistory
+
+Base.metadata.create_all(bind=engine)  # 앱 시작할 때 테이블 자동 생성
+
+
+
+
+
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key") # 새션 추가 
 app.include_router(all_router)  # 라우터 포함시키기

@@ -1,0 +1,2 @@
+# 음성클로닝 다운 받기
+git clone https://github.com/Zyphra/Zonos.git

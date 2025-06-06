@@ -3,5 +3,8 @@ venv/
 env/
 myenv/
 
-# 캐시 제외외
+# 캐시 제외 
 __pycache__/
+
+#AI_model 제외
+AI_model/

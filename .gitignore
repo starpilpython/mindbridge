@@ -2,3 +2,6 @@
 venv/
 env/
 myenv/
+
+# 캐시 제외외
+__pycache__/

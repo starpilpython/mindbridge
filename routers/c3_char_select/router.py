@@ -1,7 +1,6 @@
 # [아동 사이드] 캐릭터 선택창 라우터 설정
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 router = APIRouter()
@@ -20,6 +19,6 @@ async def select_character(request: Request):
 
     print(f"선택된 캐릭터: {character}, 오디오 파일: {audio}")
 
-    return JSONResponse({"redirect_url": "/frontend/c_4_call.html"})
+    return {"ok": True}
 
 

@@ -1,3 +1,4 @@
+# 가상환경 제외  
 venv/
 env/
 myenv/

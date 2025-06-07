@@ -25,4 +25,4 @@ class EmotionMessages(Base):
     user_id = Column(String(50), nullable=False)
     child_name = Column(String(50), nullable=False)  # 아이 이름 추가
     emotions = Column(Text, nullable=False) # 감정 기록
-    timestamp = Column(Date, default=date.today)
+    date = Column(Date, default=date.today)

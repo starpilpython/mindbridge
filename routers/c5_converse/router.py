@@ -162,3 +162,39 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
 
     # JSON 응답 반환
     return JSONResponse(content={"faces": faces})
+
+###################################################################
+
+# 아동 - AI 대화 요약 및 영상 감정 추출 
+@router.post('/generate-summary')
+async def summary(request: Request, db: Session = Depends(get_db)):
+
+    # 세션에 저장된 id 가져오기 
+    user_id = request.session.get("user_id", "child_001")
+
+    # 대화 중 최신 데이터 가져오기 
+    latest_message = (
+        db.query(ChatHistory)
+        .filter(ChatHistory.user_id == user_id)
+        .order_by(ChatHistory.date.desc())  # date 필드를 기준으로 정렬
+        .first()  # 가장 최신 메시지 하나 반환
+    )  # 이부분을 수정해주세요.
+
+
+    # 비동기 함수로 요약 및 영상 제작 호출
+    summary_result = await create_summary(latest_message)
+    video_result = await create_video(latest_message)
+
+    # 결과 반환
+    return {"summary": summary_result, "video": video_result}
+
+# 대화 요약을 생성하는 기능
+async def create_summary(chat_message):
+        # ... 구현 내용 ...
+    return "대화 요약 결과"
+
+# 영상 제작 기능
+async def create_video(emotion_message):
+    
+    # ... 구현 내용 ...
+    return "영상 제작 결과"

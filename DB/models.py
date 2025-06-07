@@ -1,5 +1,4 @@
 # DB 구성하는 코드 
-
 from sqlalchemy import Column, Integer, String, Text, Date
 from .database import Base
 from datetime import date
@@ -15,7 +14,6 @@ class ChatHistory(Base):
     role = Column(String(10), nullable=False)  # 'user' or 'assistant'
     content = Column(Text, nullable=False)
     date = Column(Date, default=date.today)
-
 
 
 # 아동-AI 웹캠 통한 감정 기록 DB

@@ -110,7 +110,7 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
     output_file = text_to_speech(REFER, ai_answer, RESULT_DIR, zonos_model, make_cond_dict)
 
     # 생성된 오디오 파일을 지정된 위치로 복사
-    static_audio_path = BASE_DIR / "statics" / "audio" / output_file.name
+    static_audio_path = BASE_DIR / "statics" / "result_audio" / output_file.name
     shutil.copy(output_file, static_audio_path)
 
     # 메세지 리스트를 세션에 업데이트하여 다음 대화에 사용
@@ -159,9 +159,10 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
     if faces is None:
         faces = []
 
-    for face in faces:
-        if face:  # None이나 빈 문자열 방지
-            txt += " " + str(face)
+    for sublist in faces:
+        for face in sublist:
+            if face:
+                txt += " " + str(face)
 
     # DB에 적재
     db.add(EmotionMessages(user_id=user_id, child_name=user_name, emotions=txt))

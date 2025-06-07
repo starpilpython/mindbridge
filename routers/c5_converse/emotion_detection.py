@@ -14,7 +14,10 @@ target_embedding = None
 def load_target_faces():
   global target_embedding # 전역변수 설정 
   embedding_list = [] # 임베딩 벡터 모음 리스트 
-  folder_path = 'stat' # 기준 얼굴 이미지 폴더 
+
+  folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'statics', 'webcam_targets')
+  folder_path = os.path.abspath(folder_path)  # 경로 정규화
+ 
   # 폴더 내 모든 이미지 순환
   for fname in os.listdir(folder_path):
     img_path = os.path.join(folder_path, fname)

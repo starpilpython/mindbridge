@@ -26,7 +26,7 @@ from fastapi import APIRouter, UploadFile, Request, Depends, File
 from fastapi.responses import JSONResponse
 from routers.c5_converse.livetalk import speech_to_text, ask_llm, text_to_speech
 from routers.c5_converse.emotion_detection import load_target_faces, detect_faces
-from routers.c4_call import zonos_model, whisper_model
+from routers.c4_call.router import zonos_model, whisper_model
 
 # DB 불러오기 
 from DB.models import ChatHistory, EmotionMessages
@@ -127,8 +127,8 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
 # 아동-AI 대화 웹캠 통한 YOLO로 얼굴 검출한 뒤 DEEPFACE로 감정 분석
 
 # 서버 시작 시 기준점 되는 얼굴 로드 "emotion_detection.py" 참조
-@router.lifespan("startup")
 def load_faces():
+    # 서버 시작 시 실행할 코드 
     load_target_faces()
 
 
@@ -186,6 +186,7 @@ async def summary(request: Request, db: Session = Depends(get_db)):
 
     # 결과 반환
     return {"summary": summary_result, "video": video_result}
+
 
 # 대화 요약을 생성하는 기능
 async def create_summary(chat_message):

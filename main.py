@@ -6,6 +6,14 @@ from routers import router as all_router  # 라우터 가져오기
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
+from routers.c5_converse.router import load_faces
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_faces()
+    yield  # 여기 이후는 shutdown 시점에 실행됨
+
 # DB 구성하는 코드 
 from DB.database import Base, engine
 from DB.models import ChatHistory,EmotionMessages
@@ -13,7 +21,7 @@ from DB.models import ChatHistory,EmotionMessages
 Base.metadata.create_all(bind=engine)  # 앱 시작할 때 테이블 자동 생성
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key") # 새션 추가 
 app.include_router(all_router)  # 라우터 포함시키기
 

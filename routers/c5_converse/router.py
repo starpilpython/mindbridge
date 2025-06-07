@@ -178,8 +178,7 @@ async def summary(request: Request, db: Session = Depends(get_db)):
         .filter(ChatHistory.user_id == user_id)
         .order_by(ChatHistory.date.desc())  # date 필드를 기준으로 정렬
         .first()  # 가장 최신 메시지 하나 반환
-    )  # 이부분을 수정해주세요.
-
+    )  
 
     # 비동기 함수로 요약 및 영상 제작 호출
     summary_result = await create_summary(latest_message)

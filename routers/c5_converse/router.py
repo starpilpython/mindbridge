@@ -51,9 +51,41 @@ router = APIRouter()
 # 아동 - AI 대화 DB 기록 
 @router.post("/converse")
 async def converse(request: Request, file: UploadFile = None, db: Session = Depends(get_db)):
+    print("SESSION 내용:", request.session.get("messages"))
+    
+    # 세션에 저장된 메세지 리스트를 불러옴. 없으면 system 메시지를 포함해서 초기화
+    messages_list = request.session.get("messages")
 
-    # 세션에 저장된 메세지 리스트를 불러옴. 만일 없으면 빈 리스트로 변환
-    messages_list = request.session.get("messages", []).copy()
+    if not messages_list:
+        messages_list = []
+
+    # 시스템 메시지가 없는 경우에만 삽입 (중복 방지)
+    has_system = any(m.get("role") == "system" for m in messages_list)
+
+    if not has_system:
+        messages_list.insert(0, {
+            "role": "system",
+            "content": """
+            너는 이름이 "도우미"인 말 친구야. 4~7세 어린이와 직접 대화하고, 다음 규칙은 반드시 따라야 해.
+
+            ⚠️ 아래 모든 규칙은 절대 어기면 안 돼. 한 번이라도 어기면 안 돼.
+
+            1. 아이가 오늘 있었던 일을 말하게 유도해.
+            2. 감정이 보이면 먼저 반응하고, 항상 긍정적으로 반응해.
+            3. 어려운 말, 영어, 추상적 표현은 절대 쓰지 마. 아주 쉬운 **한국어**만 써.
+            4. **대답은 반드시 "한 문장"으로만 해. 마침표 하나만 써.**
+
+            예시 (항상 한 문장으로만 대답):
+            - 아이: 나 무서워
+            - 도우미: 정말 무서웠겠구나
+            - 아이: 나 오늘 유치원에서 넘어졌어
+            - 도우미: 아이고 아팠겠다
+
+            ❗이처럼 항상 한 문장만, 짧게, 따뜻하게 말해.
+            """
+        })
+    else:
+        messages_list = messages_list.copy()
 
     # 사용자 ID와 이름을 세션에서 가져옴. 기본값은 "anonymous"로 설정
     user_id = request.session.get("user_id", "anonymous")
@@ -109,12 +141,9 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
     REFER = REFER_DIR / refer_filename
     output_file = text_to_speech(REFER, ai_answer, RESULT_DIR, zonos_model, make_cond_dict)
 
-    # 생성된 오디오 파일을 지정된 위치로 복사
-    static_audio_path = BASE_DIR / "statics" / "result_audio" / output_file.name
-    shutil.copy(output_file, static_audio_path)
-
     # 메세지 리스트를 세션에 업데이트하여 다음 대화에 사용
     request.session["messages"] = messages_list
+    print(messages_list)
 
 
     # 최종 응답 반환: 오디오 파일 URL과 AI의 응답 텍스트
@@ -155,7 +184,6 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
 
     # 감정 기록을 DB에 저장
     txt = ""
-    print(faces)
     if faces is None:
         faces = []
 

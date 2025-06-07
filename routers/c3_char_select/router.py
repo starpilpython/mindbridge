@@ -14,6 +14,8 @@ async def select_character(request: Request):
     audio = data.get("audio")
 
     # 세션 저장
+    request.session["user_id"] = "child_001"  # 또는 UUID, 닉네임 등
+    request.session["user_name"] = "윤성필"  # 또는 UUID, 닉네임 등
     request.session["character"] = character
     request.session["audio"] = audio
 

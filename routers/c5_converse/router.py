@@ -22,13 +22,14 @@ import subprocess, shutil
 from datetime import date
 
 # Fastapi 라우터 설정하는 패키지
-from fastapi import APIRouter, UploadFile, Request, Depends
+from fastapi import APIRouter, UploadFile, Request, Depends, File
 from fastapi.responses import JSONResponse
 from routers.c5_converse.livetalk import speech_to_text, ask_llm, text_to_speech
+from routers.c5_converse.emotion_detection import load_target_faces, detect_faces
 from routers.c4_call import zonos_model, whisper_model
 
 # DB 불러오기 
-from DB.models import ChatHistory
+from DB.models import ChatHistory, EmotionMessages
 from DB.database import get_db
 from sqlalchemy.orm import Session
 
@@ -46,7 +47,8 @@ TMP_DIR.mkdir(exist_ok=True)
 #Fastapi 가동 
 router = APIRouter()
 
-# 대화를 하고 이를 db에 정리하는 함수 
+###################################################################
+# 아동 - AI 대화 DB 기록 
 @router.post("/converse")
 async def converse(request: Request, file: UploadFile = None, db: Session = Depends(get_db)):
 
@@ -120,5 +122,43 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
         "text": ai_answer
     })
 
-# 영상 받는 것을 통해 yolo로 얼굴 검출한 뒤에 감정 체크 하기  
+###################################################################
 
+# 아동-AI 대화 웹캠 통한 YOLO로 얼굴 검출한 뒤 DEEPFACE로 감정 분석
+
+# 서버 시작 시 기준점 되는 얼굴 로드 "emotion_detection.py" 참조
+@router.lifespan("startup")
+def load_faces():
+    load_target_faces()
+
+
+# 클라이언트가 전송한 이미지에서 얼굴 인식 후 감정 분석
+@router.post("/emo_detect")
+async def detect(request: Request, file: UploadFile = None, db: Session = Depends(get_db)):
+    # 감정 저장 리스트 
+    faces = request.session.get("emotions", []).copy()
+
+    # 사용자 ID와 이름을 세션에서 가져옴. 기본값은 "anonymous"로 설정
+    user_id = request.session.get("user_id", "anonymous")
+    user_name = request.session.get("user_name", "anonymous")
+
+    # 파일을 읽고 이미지로 변환
+    img_bytes = await file.read()
+    face = detect_faces(img_bytes)  # 분리된 함수 호출
+    
+    # 저장 리스트 저장
+    faces.append(face)
+
+    # 감정 기록을 세션에 저장 
+    request.session["emotions"] = faces
+
+    # 감정 기록을 DB에 저장
+    txt = None
+    for face in faces:
+        txt = txt +" "+ face
+    # DB에 적재
+    db.add(EmotionMessages(user_id=user_id, user_name=user_name, role="user", emotions=txt))
+    db.commit()  # 변경 사항을 커밋하여 DB에 저장
+
+    # JSON 응답 반환
+    return JSONResponse(content={"faces": faces})

@@ -6,9 +6,9 @@ from routers import router as all_router  # 라우터 가져오기
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
-
+# DB 구성하는 코드 
 from DB.database import Base, engine
-from DB.models import ChatHistory
+from DB.models import ChatHistory,EmotionMessages
 
 Base.metadata.create_all(bind=engine)  # 앱 시작할 때 테이블 자동 생성
 

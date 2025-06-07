@@ -9,8 +9,8 @@ Base = declarative_base()
 
 
 def get_db():
-    db = SessionLocal()
+    db = SessionLocal()  # 데이터베이스 세션 생성
     try:
-        yield db
+        yield db  # DB 세션을 반환하여 사용하도록 함
     finally:
-        db.close()
+        db.close()  # 사용이 끝난 후 DB 세션 종료

@@ -15,8 +15,8 @@ TMP_DIR = BASE_DIR / "tmp"
 TMP_DIR.mkdir(exist_ok=True)
 
 # 각 음성 샘플 참조 데이터 및 결과 데이터 저장소 위치 
-REFER_DIR = BASE_DIR / 'static' / 'refer_audio'
-RESULT_DIR = BASE_DIR / 'static' / 'result_audio' / 'result.wav'
+REFER_DIR = BASE_DIR / 'statics' / 'refer_audio'
+RESULT_DIR = BASE_DIR / 'statics' / 'result_audio' / 'result.wav'
 sys.path.append(str(ZONOS_PATH))
 
 from zonos.model import Zonos
@@ -85,6 +85,6 @@ async def init_session(request: Request):
     REFER = REFER_DIR / refer_filename
 
     # 텍스트를 음성으로 변환 (TTS)
-    text_to_speech(REFER, first_question, RESULT_DIR, voice_model, make_cond_dict)
+    text_to_speech(REFER, first_question, RESULT_DIR, zonos_model, make_cond_dict)
 
     return JSONResponse({"status": "ok", "message": "초기화 완료"})

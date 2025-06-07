@@ -36,8 +36,8 @@ from sqlalchemy.orm import Session
 ###################################################################
 
 # 각 음성 샘플 참조 데이터 및 결과 데이터 저장소 위치 
-REFER_DIR = BASE_DIR / 'static' / 'refer_audio'
-RESULT_DIR = BASE_DIR / 'static' / 'result_audio' / 'result.wav'
+REFER_DIR = BASE_DIR / 'statics' / 'refer_audio'
+RESULT_DIR = BASE_DIR / 'statics' / 'result_audio' / 'result.wav'
 
 TMP_DIR = BASE_DIR / "tmp"
 TMP_DIR.mkdir(exist_ok=True)
@@ -95,8 +95,8 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
             messages_list.append({"role": "assistant", "content": ai_answer})
 
             # 대화 기록을 DB에 저장
-            db.add(ChatHistory(user_id=user_id, user_name=user_name, role="user", content=human_ask_))
-            db.add(ChatHistory(user_id=user_id, user_name=user_name, role="assistant", content=ai_answer))
+            db.add(ChatHistory(user_id=user_id, child_name=user_name, role="user", content=human_ask_))
+            db.add(ChatHistory(user_id=user_id, child_name=user_name, role="assistant", content=ai_answer))
             db.commit()  # 변경 사항을 커밋하여 DB에 저장
 
         except Exception as e:
@@ -110,15 +110,16 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
     output_file = text_to_speech(REFER, ai_answer, RESULT_DIR, zonos_model, make_cond_dict)
 
     # 생성된 오디오 파일을 지정된 위치로 복사
-    static_audio_path = BASE_DIR / "static" / "audio" / output_file.name
+    static_audio_path = BASE_DIR / "statics" / "audio" / output_file.name
     shutil.copy(output_file, static_audio_path)
 
     # 메세지 리스트를 세션에 업데이트하여 다음 대화에 사용
     request.session["messages"] = messages_list
 
+
     # 최종 응답 반환: 오디오 파일 URL과 AI의 응답 텍스트
     return JSONResponse({
-        "audio_url": f"/static/audio/{output_file.name}",
+        "audio_url": f"/statics/result_audio/{output_file.name}",
         "text": ai_answer
     })
 
@@ -153,11 +154,17 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
     request.session["emotions"] = faces
 
     # 감정 기록을 DB에 저장
-    txt = None
+    txt = ""
+    print(faces)
+    if faces is None:
+        faces = []
+
     for face in faces:
-        txt = txt +" "+ face
+        if face:  # None이나 빈 문자열 방지
+            txt += " " + str(face)
+
     # DB에 적재
-    db.add(EmotionMessages(user_id=user_id, user_name=user_name, role="user", emotions=txt))
+    db.add(EmotionMessages(user_id=user_id, child_name=user_name, emotions=txt))
     db.commit()  # 변경 사항을 커밋하여 DB에 저장
 
     # JSON 응답 반환

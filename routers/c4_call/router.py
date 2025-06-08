@@ -28,10 +28,22 @@ from zonos.conditioning import make_cond_dict
 from faster_whisper import WhisperModel
 
 # Fastapi 라우터 설정하는 패키지
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from routers.c5_converse.livetalk import text_to_speech
-import uuid
+
+
+###################################################################
+
+# DB 관련
+from DB.database import get_db
+from DB.models import MemberList
+from sqlalchemy.orm import Session
+
+# FastAPI 엔드포인트 안에서 사용(음성 제목 조절)
+def get_member_audio(user_id: str, db: Session):
+    member = db.query(MemberList).filter(MemberList.user_id == user_id).first()
+    return member.audio
 
 ###################################################################
 
@@ -50,7 +62,6 @@ def voice_model():
 # FastAPI에서 애플리케이션이 시작될 때 모델을 로드
 voice_model()
 
-
 ###################################################################
 
 #Fastapi 가동 
@@ -58,42 +69,20 @@ router = APIRouter()
 
 # 최초 사이트 가동할 때 필요 
 @router.post("/converse_init")
-async def init_session(request: Request):
+async def init_session(db: Session = Depends(get_db)):
     
-    # 비식별되는 코드 추가 
-    if 'session_id' not in request.session:
-        request.session['session_id'] = str(uuid.uuid4())
-
-    request.session["messages"] = [{
-        "role": "system",
-        "content": """
-    너는 이름이 "도우미"인 말 친구야. 4~7세 어린이와 직접 대화하고, 다음 규칙은 반드시 따라야 해.
-
-    ⚠️ 아래 모든 규칙은 절대 어기면 안 돼. 한 번이라도 어기면 안 돼.
-
-    1. 아이가 오늘 있었던 일을 말하게 유도해.
-    2. 감정이 보이면 먼저 반응하고, 항상 긍정적으로 반응해.
-    3. 어려운 말, 영어, 추상적 표현은 절대 쓰지 마. 아주 쉬운 한국어만 써.
-    4. **대답은 반드시 "한 문장"으로만 해. 마침표 하나만 써.**
-
-    예시 (항상 한 문장으로만 대답):
-    - 아이: 나 무서워
-    - 도우미: 정말 무서웠겠구나
-    - 아이: 나 오늘 유치원에서 넘어졌어
-    - 도우미: 아이고 아팠겠다
-
-    ❗이처럼 항상 한 문장만, 짧게, 따뜻하게 말해.
-    """
-    }]
+    # 오디오 경로 지정 
+    refer_filename = get_member_audio("test001", db)
+    print(refer_filename)
 
     # AI가 처음으로 질문하는 내용(해당 내용은 더미로 실제로 보여지지가 않음)
     first_question = '안녕하세요!'
 
-    # 참조 오디오 파일명 가져오기(기본값은 narration.mp3)
-    refer_filename = request.session.get("audio", "narration.mp3")
+    # 참조 오디오 파일명 가져오기
     REFER = REFER_DIR / refer_filename
 
     # 텍스트를 음성으로 변환 (TTS)
     text_to_speech(REFER, first_question, RESULT_DIR, zonos_model, make_cond_dict)
+    print('음성참조: ',refer_filename)
 
-    return JSONResponse({"status": "ok", "message": "초기화 완료"})
+    return JSONResponse({"ok": True})

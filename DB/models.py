@@ -27,3 +27,17 @@ class EmotionMessages(Base):
     emotions = Column(Text, nullable=False) # 감정 기록
     date = Column(Date, default=date.today)
     session_id = Column(String(36), nullable=False)  # 세션 ID 추가
+
+
+# 아동 데이터 인적사항 추가 
+class MemberList(Base):
+    # 테이블 이름 설정
+    __tablename__ = "member_list"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(50), nullable=False)
+    child_name = Column(String(50), nullable=False)  # 아이 이름 추가
+    character = Column(String(50), nullable=True)
+    audio = Column(String(50), nullable=True)  # 아이 이름 추가
+    session_id = Column(String(36), nullable=True)  # 세션 ID 추가
+

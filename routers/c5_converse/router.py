@@ -7,7 +7,6 @@
 import sys
 from pathlib import Path
 
-
 # 기본 경로 설정 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ZONOS_PATH = BASE_DIR / 'AI_model' / 'Zonos'
@@ -23,16 +22,22 @@ import subprocess, shutil
 from datetime import date
 
 # Fastapi 라우터 설정하는 패키지
-from fastapi import APIRouter, UploadFile, Request, Depends, File
+from fastapi import APIRouter, UploadFile, Request, Depends
 from fastapi.responses import JSONResponse
 from routers.c5_converse.livetalk import speech_to_text, ask_llm, text_to_speech
 from routers.c5_converse.emotion_detection import load_target_faces, detect_faces
 from routers.c4_call.router import zonos_model, whisper_model
 
 # DB 불러오기 
-from DB.models import ChatHistory, EmotionMessages
+from DB.models import ChatHistory, EmotionMessages,MemberList
 from DB.database import get_db
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
+
+# FastAPI 엔드포인트 안에서 사용(음성 및 화자 이름 및 아이디 출력)
+def get_member(user_id: str, db: Session):
+    member = db.query(MemberList).filter(MemberList.user_id == user_id).first()
+    return member
 
 ###################################################################
 
@@ -52,157 +57,173 @@ router = APIRouter()
 # 아동 - AI 대화 DB 기록 
 @router.post("/converse")
 async def converse(request: Request, file: UploadFile = None, db: Session = Depends(get_db)):
-    print("SESSION 내용:", request.session.get("messages"))
+    # 사용자 정보
+    member = get_member("test001", db)
+    user_id = member.user_id
+    child_name = member.child_name
+    audio = member.audio
+    session_id = member.session_id
 
+    # 기본 시스템 메시지
+    system_msg = {
+        "role": "system",
+        "content": """
+        너는 이름이 "도우미"인 말 친구야. 4~7세 어린이와 직접 대화하고, 다음 규칙은 반드시 따라야 해.
 
-    # 세션에 저장된 메세지 리스트를 불러옴. 없으면 system 메시지를 포함해서 초기화
-    messages_list = request.session.get("messages")
+        ⚠️ 아래 모든 규칙은 절대 어기면 안 돼. 한 번이라도 어기면 안 돼.
 
-    if not messages_list:
-        messages_list = []
+        1. 아이가 오늘 있었던 일을 말하게 유도해.
+        2. 감정이 보이면 먼저 반응하고, 항상 긍정적으로 반응해.
+        3. 어려운 말, 영어, 추상적 표현은 절대 쓰지 마. 아주 쉬운 **한국어**만 써.
+        4. **대답은 반드시 "한 문장"으로만 해. 마침표 하나만 써.**
 
-    # 시스템 메시지가 없는 경우에만 삽입 (중복 방지)
-    has_system = any(m.get("role") == "system" for m in messages_list)
+        예시 (항상 한 문장으로만 대답):
+        - 아이: 나 무서워
+        - 도우미: 정말 무서웠겠구나
+        - 아이: 나 오늘 유치원에서 넘어졌어
+        - 도우미: 아이고 아팠겠다
 
-    if not has_system:
-        messages_list.insert(0, {
-            "role": "system",
-            "content": """
-            너는 이름이 "도우미"인 말 친구야. 4~7세 어린이와 직접 대화하고, 다음 규칙은 반드시 따라야 해.
+        ❗이처럼 항상 한 문장만, 짧게, 따뜻하게 말해.
+        """
+    }
 
-            ⚠️ 아래 모든 규칙은 절대 어기면 안 돼. 한 번이라도 어기면 안 돼.
+    # 이전 대화 불러오기
+    history_rows = (
+        db.query(ChatHistory)
+        .filter(ChatHistory.session_id == session_id)
+        .order_by(ChatHistory.id.asc())
+        .all()
+    )
 
-            1. 아이가 오늘 있었던 일을 말하게 유도해.
-            2. 감정이 보이면 먼저 반응하고, 항상 긍정적으로 반응해.
-            3. 어려운 말, 영어, 추상적 표현은 절대 쓰지 마. 아주 쉬운 **한국어**만 써.
-            4. **대답은 반드시 "한 문장"으로만 해. 마침표 하나만 써.**
+    messages_list = [{"role": row.role, "content": row.content} for row in history_rows]
 
-            예시 (항상 한 문장으로만 대답):
-            - 아이: 나 무서워
-            - 도우미: 정말 무서웠겠구나
-            - 아이: 나 오늘 유치원에서 넘어졌어
-            - 도우미: 아이고 아팠겠다
+    # system 메시지가 없다면 맨 앞에 삽입
+    if not any(m["role"] == "system" for m in messages_list):
+        messages_list.insert(0, system_msg)
 
-            ❗이처럼 항상 한 문장만, 짧게, 따뜻하게 말해.
-            """
-        })
-    else:
-        messages_list = messages_list.copy()
-
-    # 사용자 ID와 이름을 세션에서 가져옴. 기본값은 "anonymous"로 설정
-    user_id = request.session.get("user_id", "anonymous")
-    child_name = request.session.get("child_name", "anonymous")
-
-    # 음성 인식 실패 시에 반환할 기본 메시지 설정
+    # 음성 인식 실패 시 기본 답변
     human_ask = "음성 인식이 잘 되지 않았어요."
     ai_answer = "다시 말해 주세요"
 
-    # 업로드된 파일이 없을 경우 사용자에게 오류 메시지 표시
     if file is None:
         messages_list.append({"role": "user", "content": human_ask})
         messages_list.append({"role": "assistant", "content": ai_answer})
-        request.session["messages"] = messages_list
         return JSONResponse({"audio_url": None, "text": ai_answer})
 
-    # 업로드된 파일을 temp_input.webm으로 저장
+    # 파일 저장 및 변환
     input_webm = TMP_DIR / "temp_input.webm"
     with open(input_webm, "wb") as f:
         f.write(await file.read())
 
-    # temp_input.webm 파일을 temp_input.wav로 변환
     input_wav = TMP_DIR / "temp_input.wav"
     subprocess.run(["ffmpeg", "-y", "-i", str(input_webm), "-ar", "16000", "-ac", "1", str(input_wav)],
                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    # 변환된 음성을 텍스트로 변환
+    # 음성 → 텍스트
     human_ask_ = speech_to_text(str(input_wav), whisper_model)
 
-    # 변환된 텍스트가 비어있을 경우 사용자에게 오류 메시지를 추가
     if not human_ask_ or not human_ask_.strip():
         messages_list.append({"role": "user", "content": human_ask})
         messages_list.append({"role": "assistant", "content": ai_answer})
     else:
         messages_list.append({"role": "user", "content": human_ask_})
+
         try:
-            # 대화형 언어 모델에 사용자의 질문을 전달하고 응답을 받음
+            # LLM 호출
             ai_answer = ask_llm(human_ask_, messages_list)
             messages_list.append({"role": "assistant", "content": ai_answer})
 
-            # 대화 기록을 DB에 저장
-            db.add(ChatHistory(user_id=user_id, child_name=child_name, role="user", content=human_ask_, session_id=request.session['session_id']))
-            db.add(ChatHistory(user_id=user_id, child_name=child_name, role="assistant", content=ai_answer, session_id=request.session['session_id']))
-            db.commit()  # 변경 사항을 커밋하여 DB에 저장
+            # DB에 각각 저장
+            db.add(ChatHistory(user_id=user_id, child_name=child_name, role="user", content=human_ask_, session_id=session_id))
+            db.add(ChatHistory(user_id=user_id, child_name=child_name, role="assistant", content=ai_answer, session_id=session_id))
+            db.commit()
 
         except Exception as e:
-            # 오류 발생 시, 오류를 출력하고 응답 메시지를 추가
             print(f"오류 발생: {e}")
             messages_list.append({"role": "assistant", "content": ai_answer})
 
-    # 세션에서 참고할 파일 이름을 가져와 오디오 파일 생성
-    refer_filename = request.session.get("audio", "narration.mp3")
-    REFER = REFER_DIR / refer_filename
+    # 음성 생성
+    REFER = REFER_DIR / audio
     output_file = text_to_speech(REFER, ai_answer, RESULT_DIR, zonos_model, make_cond_dict)
 
-    # 메세지 리스트를 세션에 업데이트하여 다음 대화에 사용
-    request.session["messages"] = messages_list
-    print(messages_list)
-
-
-    # 최종 응답 반환: 오디오 파일 URL과 AI의 응답 텍스트
     return JSONResponse({
         "audio_url": f"/statics/result_audio/{output_file.name}",
         "text": ai_answer
     })
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ###################################################################
 
 # 아동-AI 대화 웹캠 통한 YOLO로 얼굴 검출한 뒤 DEEPFACE로 감정 분석
-
 # 서버 시작 시 기준점 되는 얼굴 로드 "emotion_detection.py" 참조
 def load_faces():
     # 서버 시작 시 실행할 코드 
     load_target_faces()
 
-
 # 클라이언트가 전송한 이미지에서 얼굴 인식 후 감정 분석
 @router.post("/emo_detect")
 async def detect(request: Request, file: UploadFile = None, db: Session = Depends(get_db)):
-    # 감정 저장 리스트 
-    faces = request.session.get("emotions", []).copy()
+    # 사용자 정보 불러오기
+    member = get_member("test001", db)
+    user_id = member.user_id
+    child_name = member.child_name
+    session_id = member.session_id
 
-    # 사용자 ID와 이름을 세션에서 가져옴. 기본값은 "anonymous"로 설정
-    user_id = request.session.get("user_id", "anonymous")
-    user_name = request.session.get("user_name", "anonymous")
-
-    # 파일을 읽고 이미지로 변환
+    # 새로 전송된 이미지에서 감정 분석
     img_bytes = await file.read()
-    face = detect_faces(img_bytes)  # 분리된 함수 호출
-    
-    # 저장 리스트 저장
-    faces.append(face)
+    detected_faces = detect_faces(img_bytes)
 
-    # 감정 기록을 세션에 저장 
-    request.session["emotions"] = faces
+    # 새로운 감정들을 문자열로 정리
+    new_emotions = " ".join(str(face) for sub in detected_faces for face in sub if face)
 
-    # 감정 기록을 DB에 저장
-    txt = ""
-    if faces is None:
-        faces = []
+    # 기존 감정 기록 불러오기
+    latest = (
+        db.query(EmotionMessages)
+        .filter(
+            EmotionMessages.user_id == user_id,
+            EmotionMessages.session_id == session_id
+        )
+        .order_by(desc(EmotionMessages.id))  # 가장 최근 감정 기록
+        .first()
+    )
 
-    for sublist in faces:
-        for face in sublist:
-            if face:
-                txt += " " + str(face)
+    if latest:
+        latest.emotions += " " + new_emotions
+    else:
+        latest = EmotionMessages(
+            user_id=user_id,
+            child_name=child_name,
+            session_id=session_id,
+            emotions=new_emotions
+        )
+        db.add(latest)
 
-    # DB에 적재
-    db.add(EmotionMessages(user_id=user_id, child_name=user_name, emotions=txt, session_id=request.session['session_id']))
-    db.commit()  # 변경 사항을 커밋하여 DB에 저장
+    db.commit()
 
-    # JSON 응답 반환
-    return JSONResponse(content={"faces": faces})
+    # 응답
+    return JSONResponse(content={"faces": detected_faces})
 
 ###################################################################
-
+'''
 # 아동 - AI 대화 요약 및 영상 감정 추출 
 @router.post('/generate-summary')
 async def summary(request: Request, db: Session = Depends(get_db)):
@@ -236,3 +257,5 @@ async def create_video(emotion_message):
     
     # ... 구현 내용 ...
     return "영상 제작 결과"
+
+'''

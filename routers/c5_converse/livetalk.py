@@ -7,7 +7,7 @@ from llama_cpp import Llama # gguf llm 파일 모델 실행
 # ==== 0. gguf 파일 직접 로딩 ==== 
 llm = Llama(model_path="/home/elicer/mindbridge/AI_model/gemma-3-4B-it-QAT-Q4_0.gguf",
             verbose=False,    # CPU 병렬 처리 활성화
-            n_gpu_layers=1000  , use_mlock=True)  # 로그 억제 
+            n_gpu_layers=1000  , n_ctx=131072 ,use_mlock=True)  # 로그 억제 
 
 
 # ==== 1. 음성 → 텍스트 ====

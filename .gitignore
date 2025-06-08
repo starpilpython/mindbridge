@@ -8,3 +8,6 @@ __pycache__/
 
 #AI_model 제외
 AI_model/
+
+# 제외
+dummy.py

@@ -37,6 +37,8 @@ app.add_middleware(
     allow_headers=["*"],     # 모든 HTTP 헤더 허용
 )
 
+# 이 설정이 반드시 필요함
+app.mount("/statics", StaticFiles(directory="/home/elicer/mindbridge/statics"))
 
 # 여기에 더미 데이터를 넣는 함수 정의
 def insert_dummy_member():

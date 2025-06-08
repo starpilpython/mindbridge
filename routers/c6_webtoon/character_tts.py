@@ -8,6 +8,7 @@ sys.path.append(str(ZONOS_DIR))
 import torchaudio
 from zonos.model import Zonos
 from zonos.conditioning import make_cond_dict
+import os 
 
 # 고정 설정
 MODEL_NAME = "Zyphra/Zonos-v0.1-transformer"
@@ -53,6 +54,9 @@ def tts_main(CUTSCENE_CONFIG):
             if seg_type == "dialogue":
                 speaker = seg["speaker"]
                 audio_path = f"./statics/refer_audio/{speaker}.mp3"
+                if not os.path.exists(audio_path):
+                     audio_path = "./statics/refer_audio/narration.mp3"
+
             elif seg_type == "narration":
                 speaker = "narration"
                 

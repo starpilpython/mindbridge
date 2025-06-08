@@ -64,20 +64,32 @@ def generate_images(ip_adapter, CUTSCENE_CONFIG):
             name = char["name"]
             prompt = char["prompt"]
 
-            # 참조 파일 없으면 etc.jpg 강제 대입
-            ref_file = char.get("ref") or "etc.jpg"
+            # 참조 파일 없으면 etc.png 강제 대입
+            ref_file = char.get("ref") or "etc.png"
             ref_path = CHARACTER_INPUT_DIR / ref_file
 
+            # 실제 파일이 존재하지 않으면 etc.png로 다시 설정
             if not ref_path.exists():
-                print(f"[!] 참조 이미지 없음: {ref_path} → etc.jpg 사용 불가. 얼굴 없이 생성")
-                faceid_embeds = None
-            else:
+                print(f"[!] 참조 이미지 없음: {ref_path}")
+                alt_path = CHARACTER_INPUT_DIR / "etc.png"
+                if alt_path.exists():
+                    print("[!] etc.png로 대체합니다.")
+                    ref_file = "etc.png"
+                    ref_path = alt_path
+                else:
+                    print("[!] etc.png도 없음 → 얼굴 없이 생성")
+                    faceid_embeds = None
+                    ref_path = None
+
+            # ref_path가 존재한다면 임베딩 추출 시도
+            if ref_path is not None:
                 try:
                     faceid_embeds = extract_face_embedding(str(ref_path))
                     print(f"[✓] 얼굴 임베딩 추출 완료: {ref_path}")
                 except ValueError:
                     print(f"[!] 얼굴 인식 실패: {ref_path} → 얼굴 없이 생성")
                     faceid_embeds = None
+
 
             # 얼굴 임베딩 유무 관계없이 무조건 생성
             images = ip_adapter.generate(

@@ -14,7 +14,7 @@ class ChatHistory(Base):
     role = Column(String(10), nullable=False)  # 'user' or 'assistant'
     content = Column(Text, nullable=False)
     date = Column(Date, default=date.today)
-
+    session_id = Column(String(36), nullable=False)  # 세션 ID 추가
 
 # 아동-AI 웹캠 통한 감정 기록 DB
 class EmotionMessages(Base):
@@ -26,3 +26,4 @@ class EmotionMessages(Base):
     child_name = Column(String(50), nullable=False)  # 아이 이름 추가
     emotions = Column(Text, nullable=False) # 감정 기록
     date = Column(Date, default=date.today)
+    session_id = Column(String(36), nullable=False)  # 세션 ID 추가

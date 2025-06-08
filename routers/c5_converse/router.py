@@ -7,6 +7,7 @@
 import sys
 from pathlib import Path
 
+
 # 기본 경로 설정 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ZONOS_PATH = BASE_DIR / 'AI_model' / 'Zonos'
@@ -52,7 +53,8 @@ router = APIRouter()
 @router.post("/converse")
 async def converse(request: Request, file: UploadFile = None, db: Session = Depends(get_db)):
     print("SESSION 내용:", request.session.get("messages"))
-    
+
+
     # 세션에 저장된 메세지 리스트를 불러옴. 없으면 system 메시지를 포함해서 초기화
     messages_list = request.session.get("messages")
 
@@ -89,7 +91,7 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
 
     # 사용자 ID와 이름을 세션에서 가져옴. 기본값은 "anonymous"로 설정
     user_id = request.session.get("user_id", "anonymous")
-    user_name = request.session.get("user_name", "anonymous")
+    child_name = request.session.get("child_name", "anonymous")
 
     # 음성 인식 실패 시에 반환할 기본 메시지 설정
     human_ask = "음성 인식이 잘 되지 않았어요."
@@ -127,8 +129,8 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
             messages_list.append({"role": "assistant", "content": ai_answer})
 
             # 대화 기록을 DB에 저장
-            db.add(ChatHistory(user_id=user_id, child_name=user_name, role="user", content=human_ask_))
-            db.add(ChatHistory(user_id=user_id, child_name=user_name, role="assistant", content=ai_answer))
+            db.add(ChatHistory(user_id=user_id, child_name=child_name, role="user", content=human_ask_, session_id=request.session['session_id']))
+            db.add(ChatHistory(user_id=user_id, child_name=child_name, role="assistant", content=ai_answer, session_id=request.session['session_id']))
             db.commit()  # 변경 사항을 커밋하여 DB에 저장
 
         except Exception as e:
@@ -193,7 +195,7 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
                 txt += " " + str(face)
 
     # DB에 적재
-    db.add(EmotionMessages(user_id=user_id, child_name=user_name, emotions=txt))
+    db.add(EmotionMessages(user_id=user_id, child_name=user_name, emotions=txt, session_id=request.session['session_id']))
     db.commit()  # 변경 사항을 커밋하여 DB에 저장
 
     # JSON 응답 반환

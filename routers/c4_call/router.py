@@ -31,6 +31,7 @@ from faster_whisper import WhisperModel
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from routers.c5_converse.livetalk import text_to_speech
+import uuid
 
 ###################################################################
 
@@ -58,6 +59,11 @@ router = APIRouter()
 # 최초 사이트 가동할 때 필요 
 @router.post("/converse_init")
 async def init_session(request: Request):
+    
+    # 비식별되는 코드 추가 
+    if 'session_id' not in request.session:
+        request.session['session_id'] = str(uuid.uuid4())
+
     request.session["messages"] = [{
         "role": "system",
         "content": """

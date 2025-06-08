@@ -13,6 +13,9 @@ from DB.models import ChatHistory, ChildShort
 from DB.database import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
+
+# 핵심 기능 호출 
+
 ###################################################################
 
 #Fastapi 가동 
@@ -33,7 +36,7 @@ async def lastest_short(db: Session = Depends(get_db)):
     session_id = latest_session.session_id
     name =latest_session.child_name
     make_date = latest_session.date
-    
+
     # 해당 session_id에 해당하는 전체 대화 기록 불러오기
     if latest_session:
         chat_logs = (

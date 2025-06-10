@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
 # 핵심 기능 호출 
-
+from routers.p4_dashbord import llm_short
 ###################################################################
 
 #Fastapi 가동 
@@ -24,7 +24,7 @@ today = date.today()
 
 
 # 당일 요약 데이터 생성 코드 
-@router.get('lastest_short')
+@router.get('/lastest_short')
 async def lastest_short(db: Session = Depends(get_db)):
     '''기존에 받은 내용 → 적합한 탬플릿 형식으로 바꾸기 '''
     # 가장 최신 대화 세션 ID 조회
@@ -52,6 +52,17 @@ async def lastest_short(db: Session = Depends(get_db)):
         prefix = "<|assistant|>" if log.role == "assistant" else "<|user|>"
         dialogue += f"{prefix}\n{log.content.strip()}\n"
     dialogue = dialogue.strip()  # 마지막 개행 제거
+    dialogue += "\n<|user|>\n그 동안의 이야기만 요약만 해줘.\n"
+    print(dialogue)
+
+    # 결과반환 
+    summary = llm_short.short_opinion(dialogue)
+
+    return JSONResponse({
+        "child_name": name,
+        #"session_date": make_date,
+        "summary": summary
+    })
 
 
 

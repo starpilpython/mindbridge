@@ -70,17 +70,21 @@ def short_opinion(text_list):
 
     # (5) 결과 요약 
     short_summary = gemma_chat_once(summary)
-    print('gemma3 결과: ',short_summary)
+    print('임상가의 소견: ',short_summary)
 
     text_list_summray = gemma_chat_once(text_list)
-    print('gemma3 결과: ',text_list_summray)
+    print()
+    print()
+    print('오늘 있었던일 요약: ',text_list_summray)
 
     return short_summary, text_list_summray
 
 
 if __name__ == "__main__":
     text_list =  " <|user|>\n안녕하세요. 오늘 기분이 좀 안 좋아요\n<|assistant|>\n무슨 일이 있었는지 이야기해 줄 수 있어요?\n<|user|>\n학교에서 친구랑 싸웠어요. 괜히 화가 나서 말실수도 했고요.\n<|assistant|>\n그랬구나. 친구와의 갈등이 속상했겠어요.\n<|user|>\n응, 사과는 하고 싶은데 어떻게 해야 할지 모르겠어요.\n<|assistant|>\n사과하고 싶은 마음이 중요한 첫걸음이에요. 진심을 담아서 이야기해보면 좋을 거예요.\n<|user|>\n그 동안의 이야기만 요약해줘 ."
-
+    print('대화:',text_list)
+    print()
+    print()
     short_opinion(text_list)
 
 

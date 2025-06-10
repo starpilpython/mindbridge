@@ -51,7 +51,8 @@ class ChildShort(Base):
     user_id = Column(String(50), nullable=False) # 부모 아이디 
     child_id = Column(String(50), nullable=False) # 아동 아이디 
     child_name = Column(String(50), nullable=False)  # 아이 이름
-    short_data = Column(String(50000),default="아직 생성되지 않았습니다.") # 요약데이터 
+    short_summary = Column(String(50000),default="아직 생성되지 않았습니다.") # 소견 데이터 
+    text_list_summray = Column(String(50000),default="아직 생성되지 않았습니다.") # 요약데이터 
     date = Column(Date, default=date.today)
     
 

@@ -33,7 +33,7 @@ async def lastest_short(db: Session = Depends(get_db)):
     )
     session_id = latest_session.session_id
     name =latest_session.child_name
-    child_id =latest_session.child_id
+    child_id =latest_session.user_id
     make_date = latest_session.date
 
     # 해당 session_id에 해당하는 전체 대화 기록 불러오기
@@ -76,6 +76,7 @@ async def lastest_short(db: Session = Depends(get_db)):
         "text_summary":text_list_summray,
     })
 
+
 # 해당 데이터 베이스 조회 
 @router.get("/child_summary_list", response_class=JSONResponse)
 async def get_child_summary_list(db: Session = Depends(get_db)):
@@ -88,24 +89,7 @@ async def get_child_summary_list(db: Session = Depends(get_db)):
             "user_id": item.user_id,
             "child_id": item.child_id,
             "child_name": item.child_name,
-            "short_data": item.short_data,
             "date": str(item.date)
         })
 
     return JSONResponse(content=result)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    

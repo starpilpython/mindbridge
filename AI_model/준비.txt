@@ -1,0 +1,5 @@
+# 디렉토리 종류
+Kobert 
+Rag
+Webtoon
+Zonos

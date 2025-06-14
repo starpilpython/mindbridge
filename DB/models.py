@@ -53,6 +53,7 @@ class ChildShort(Base):
     child_name = Column(String(50), nullable=False)  # 아이 이름
     short_summary = Column(String(50000),default="아직 생성되지 않았습니다.") # 소견 데이터 
     text_list_summray = Column(String(50000),default="아직 생성되지 않았습니다.") # 요약데이터 
+    emotion_counts = Column(Text,  nullable=False)
     date = Column(Date, default=date.today)
     
 

@@ -51,14 +51,14 @@ def tts_main(CUTSCENE_CONFIG):
             text = seg["text"]
             seg_type = seg["type"]
 
-            if seg_type == "dialogue":
+            if seg_type == "대사":
                 speaker = seg["speaker"]
                 audio_path = f"./statics/refer_audio/{speaker}.mp3"
                 if not os.path.exists(audio_path):
                      audio_path = "./statics/refer_audio/narration.mp3"
 
-            elif seg_type == "narration":
-                speaker = "narration"
+            elif seg_type == "나레이션":
+                speaker = "나레이션"
                 
                 audio_path = "./statics/refer_audio/narration.mp3"
             else:
@@ -93,12 +93,5 @@ if __name__ == "__main__":
     prompt = convert_to_prompt_format(story)
     print(prompt)
 
-    
     # --- TTS 생성 ---
     tts_main(prompt)
-
-
-
-
-
-

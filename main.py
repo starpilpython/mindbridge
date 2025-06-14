@@ -65,7 +65,6 @@ def insert_dummy_member():
     finally:
         db.close()
 
-
 if __name__ == '__main__':
     # 배포용으로 설정 
     uvicorn.run(app,host='0.0.0.0',port=1025, log_level="info")

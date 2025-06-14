@@ -26,7 +26,7 @@ def load_pipeline():
     return pipe
 
 # --- 배경 생성 ---
-def generate_background(pipe, prompt: str, output_path: Path, blur_radius: float = 1):
+def generate_background(pipe, prompt: str, output_path: Path, blur_radius: float = 30):
     styled_prompt = f"{prompt}, watercolor, pastel tones, soft lighting, ghibli style"
     image = pipe(
         prompt=styled_prompt,
@@ -51,7 +51,7 @@ def generate_all_backgrounds(CUTSCENE_CONFIG):
     for i, prompt in enumerate(CUTSCENE_CONFIG, start=1):
         fname = OUTPUT_DIR / f"{prompt['cut_id']}.png"
         print(f"STEP2. {i}번째 배경 생성 시작: {prompt['cut_id']}",fname)
-        blur = 3
+        blur = 10
         generate_background(pipe, prompt['background_prompt'], fname, blur_radius=blur)
         print(f"STEP2. {i}번째 배경 생성 완료")
 

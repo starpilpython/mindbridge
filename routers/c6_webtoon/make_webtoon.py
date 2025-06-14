@@ -77,7 +77,7 @@ def webtoon_main(CUTSCENE_CONFIG,filename):
             img = Image.open(img_path).convert("RGBA")
             fg_w, fg_h = img.size
 
-            if name == "main":
+            if name == "호야":
                 pos = (int(bg_w * 0.03), 60)  # 왼쪽 여백 3%
             else:
                 pos = (bg_w - fg_w - int(bg_w * 0.03), 60)  # 오른쪽 여백 3%
@@ -86,7 +86,13 @@ def webtoon_main(CUTSCENE_CONFIG,filename):
 
         for seg_idx, segment in enumerate(scene.get("segments", [])):
             seg_type = segment["type"]
-            text = segment["text"]
+
+            if segment["type"] == "대화":
+                speaker = segment.get("speaker", "")
+                text = f"[{speaker}] {segment['text']}"
+            else:
+                text = segment["text"]
+                
             audio_path = f"./statics/result_audio/{scene['cut_id']}_{seg_idx}.wav"
 
             duration = get_audio_duration(audio_path)
@@ -95,8 +101,9 @@ def webtoon_main(CUTSCENE_CONFIG,filename):
 
             for i in range(len(shifts)):
                 frame = bg.copy()
+                
                 for name, data in char_data.items():
-                    if seg_type == "dialogue" and name == segment.get("speaker"):
+                    if seg_type == "대사" and name == segment.get("speaker"):
                         fg = apply_motion(data["img"], [shifts[i]])[0]
                     else:
                         fg = data["img"]
@@ -111,11 +118,6 @@ def webtoon_main(CUTSCENE_CONFIG,filename):
 
 
     # 클립 이어붙이고 저장
-    final = concatenate_videoclips(final_clips)
-    final.write_videofile(f"statics/webtoon/video/{filename}.mp4", fps=30)
-
-
-    # 이어붙이고 저장
     final = concatenate_videoclips(final_clips)
     final.write_videofile(f"statics/webtoon/video/{filename}.mp4", fps=30)
 

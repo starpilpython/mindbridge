@@ -1,13 +1,19 @@
 # 가상환경 제외  
 venv/
 env/
-myenv/
+myenv/*
+!myenv
+!myenv/준비.txt
 
 # 캐시 제외 
 __pycache__/
 
 #AI_model 제외
-AI_model/
+AI_model/*
+# 예외 처리: 폴더는 추적 대상
+!AI_model/
+# 예외 처리: 특정 파일만 추적
+!AI_model/준비.txt 
 
 # 제외
 dummy.py

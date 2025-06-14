@@ -64,7 +64,7 @@
 
 ## 🚀 실행 방법
 
-\`\`\`bash
+<pre> ```bash
 # 가상환경 활성화
 source myenv/bin/activate
 
@@ -72,8 +72,8 @@ source myenv/bin/activate
 pip install -r requirements.txt
 
 # 서버 실행
-uvicorn main:app --reload
-\`\`\`
+python main.py
+``` </pre>
 
 ---
 

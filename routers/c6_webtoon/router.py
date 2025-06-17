@@ -6,7 +6,7 @@
 # Fastapi 라우터 설정하는 패키지
 from fastapi import APIRouter, UploadFile, Request, Depends
 from fastapi.responses import JSONResponse
-from routers.c6_webtoon import background_generator, character_pipeline, character_tts, make_template_rag, make_webtoon
+from routers.c6_webtoon import background_generator, character_pipeline, character_tts, make_template_ra1g, make_webtoon
 import json
 
 # DB 불러오기 
@@ -53,10 +53,10 @@ async def webtoon(db: Session = Depends(get_db)):
     dialogue = dialogue.strip()  # 마지막 개행 제거    
 
     # 웹툰 코드에 넣을 형식으로 변환 
-    retrieved = make_template_rag.retrieve_documents(dialogue)
-    story = make_template_rag.ask_llm_with_context(dialogue, retrieved)
+    retrieved = make_template_ra1g.retrieve_documents(dialogue)
+    story = make_template_ra1g.ask_llm_with_context(dialogue, retrieved)
     try:
-        story = make_template_rag.clean_json_output(story)
+        story = make_template_ra1g.clean_json_output(story)
         story = json.loads(story)
     except json.JSONDecodeError as e:
         print("JSON 파싱 오류:", e)
@@ -64,7 +64,7 @@ async def webtoon(db: Session = Depends(get_db)):
         exit(1)
 
     print("== 생성된 이야기 ==")
-    prompt = make_template_rag.convert_to_prompt_format(story)
+    prompt = make_template_ra1g.convert_to_prompt_format(story)
 
     '''웹툰 생성 하기'''
     background_generator.generate_all_backgrounds(prompt)

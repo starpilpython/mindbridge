@@ -76,6 +76,7 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
         2. 감정이 보이면 먼저 반응하고, 항상 긍정적으로 반응해.
         3. 어려운 말, 영어, 추상적 표현은 절대 쓰지 마. 아주 쉬운 **한국어**만 써.
         4. **대답은 반드시 "한 문장"으로만 해. 마침표 하나만 써.**
+        5. **이전에 했던 대화**를 꼭 기억해서 대답을 하고 아이 대화가 잘 인식이 안 될 수 있으니 잘 해석해야 해 
 
         예시 (항상 한 문장으로만 대답):
         - 아이: 나 무서워
@@ -151,26 +152,6 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
         "text": ai_answer
     })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ###################################################################
 
 # 아동-AI 대화 웹캠 통한 YOLO로 얼굴 검출한 뒤 DEEPFACE로 감정 분석
@@ -193,7 +174,7 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
     detected_faces = detect_faces(img_bytes)
 
     # 새로운 감정들을 문자열로 정리
-    new_emotions = " ".join(str(face) for sub in detected_faces for face in sub if face)
+    new_emotions = " ".join(face for sub in detected_faces for face in sub if isinstance(face, str))
 
     # 기존 감정 기록 불러오기
     latest = (
@@ -216,46 +197,10 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
             emotions=new_emotions
         )
         db.add(latest)
-
+    print()
     db.commit()
 
     # 응답
     return JSONResponse(content={"faces": detected_faces})
 
 ###################################################################
-'''
-# 아동 - AI 대화 요약 및 영상 감정 추출 
-@router.post('/generate-summary')
-async def summary(request: Request, db: Session = Depends(get_db)):
-
-    # 세션에 저장된 id 가져오기 
-    user_id = request.session.get("user_id", "child_001")
-
-    # 대화 중 최신 데이터 가져오기 
-    latest_message = (
-        db.query(ChatHistory)
-        .filter(ChatHistory.user_id == user_id)
-        .order_by(ChatHistory.date.desc())  # date 필드를 기준으로 정렬
-        .first()  # 가장 최신 메시지 하나 반환
-    )  
-
-    # 비동기 함수로 요약 및 영상 제작 호출
-    summary_result = await create_summary(latest_message)
-    video_result = await create_video(latest_message)
-
-    # 결과 반환
-    return {"summary": summary_result, "video": video_result}
-
-
-# 대화 요약을 생성하는 기능
-async def create_summary(chat_message):
-        # ... 구현 내용 ...
-    return "대화 요약 결과"
-
-# 영상 제작 기능
-async def create_video(emotion_message):
-    
-    # ... 구현 내용 ...
-    return "영상 제작 결과"
-
-'''

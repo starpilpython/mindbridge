@@ -134,7 +134,7 @@ if __name__ == "__main__":
     from background_generator import *
     from character_pipeline import *
     from character_tts import *
-    from make_template_rag import *
+    from routers.c6_webtoon.make_template_ra1g import *
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy.orm import Session

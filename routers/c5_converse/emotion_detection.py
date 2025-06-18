@@ -47,28 +47,40 @@ def detect_faces(img_bytes):
         x1, y1, x2, y2 = map(int, box.xyxy[0])
         width = x2 - x1
         height = y2 - y1
+
+        # ✅ 박스 축소 (중심 기준으로 80%)
+        shrink_ratio = 0.8
+        center_x = x1 + width / 2
+        center_y = y1 + height / 2
+        new_w = int(width * shrink_ratio)
+        new_h = int(height * shrink_ratio)
+        new_x1 = max(int(center_x - new_w / 2), 0)
+        new_y1 = max(int(center_y - new_h / 2), 0)
+        new_x2 = min(int(center_x + new_w / 2), frame.shape[1])
+        new_y2 = min(int(center_y + new_h / 2), frame.shape[0])
+
         face_crop = frame[y1:y2, x1:x2]
 
         try:
             rep = DeepFace.represent(face_crop, model_name="Facenet", enforce_detection=False)[0]["embedding"]
             sim = cosine_similarity([target_embedding], [rep])[0][0]
 
-            if sim >= 0.7:
+            if sim >= 0.6:
                 emo = DeepFace.analyze(face_crop, actions=["emotion"], enforce_detection=False)[0]["dominant_emotion"]
                 print(f"유사도: {sim:.2f}, 감정: {emo}")
                 faces.append({
                     "emotion": emo,
                     "box": {
-                        "x": x1,
-                        "y": y1,
-                        "width": width,
-                        "height": height
+                        "x": new_x1,
+                        "y": new_y1,
+                        "width": new_x2 - new_x1,
+                        "height": new_y2 - new_y1
                     }
                 })
             else:
                 print("유사도 낮음 - 다른 사람으로 간주")
                 faces.append({
-                    "emotion": "NO",
+                    "emotion": "NO"
                 })
 
         except Exception as e:

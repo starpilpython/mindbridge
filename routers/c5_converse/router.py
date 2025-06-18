@@ -174,8 +174,9 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
     detected_faces = detect_faces(img_bytes)
 
     # 새로운 감정들을 문자열로 정리
-    new_emotions = " ".join(face for sub in detected_faces for face in sub if isinstance(face, str))
-
+    new_emotions = " ".join(face["emotion"] for face in detected_faces if "emotion" in face)
+    print(new_emotions)
+    print('-------------------')
     # 기존 감정 기록 불러오기
     latest = (
         db.query(EmotionMessages)
@@ -197,9 +198,10 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
             emotions=new_emotions
         )
         db.add(latest)
-    print()
+        
+    
     db.commit()
-
+    print(latest.emotions)
     # 응답
     return JSONResponse(content={"faces": detected_faces})
 

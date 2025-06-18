@@ -42,22 +42,38 @@ def detect_faces(img_bytes):
     frame = cv2.imdecode(np_img, cv2.IMREAD_COLOR)  # BGR 이미지
     results = yolo_model(frame)
     faces = []
-    
+
     for box in results[0].boxes:
         x1, y1, x2, y2 = map(int, box.xyxy[0])
+        width = x2 - x1
+        height = y2 - y1
         face_crop = frame[y1:y2, x1:x2]
+
         try:
             rep = DeepFace.represent(face_crop, model_name="Facenet", enforce_detection=False)[0]["embedding"]
             sim = cosine_similarity([target_embedding], [rep])[0][0]
-            if sim >= 0.6:
+
+            if sim >= 0.7:
                 emo = DeepFace.analyze(face_crop, actions=["emotion"], enforce_detection=False)[0]["dominant_emotion"]
                 print(f"유사도: {sim:.2f}, 감정: {emo}")
-                faces.append(emo) # 감정 추가하기 
+                faces.append({
+                    "emotion": emo,
+                    "box": {
+                        "x": x1,
+                        "y": y1,
+                        "width": width,
+                        "height": height
+                    }
+                })
             else:
-                faces.append('NO')
                 print("유사도 낮음 - 다른 사람으로 간주")
+                faces.append({
+                    "emotion": "NO",
+                })
+
         except Exception as e:
             print("오류:", e)
             continue
-            
+
+    print(faces)
     return faces

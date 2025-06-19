@@ -66,7 +66,7 @@ async def lastest_short(db: Session = Depends(get_db)):
     emotion_str = emotion_rows[0].emotions  # ← 이게 가능하다면 가장 명확
     practices = emotion_str.split(" ")
     emo_list = [practice for practice in practices if practice != 'NO']
-    emotion_counts = Counter(emo_list)
+    emotion_counts = Counter(emo_list).most_common(7)
     top_counts = Counter(emo_list).most_common(3)
     # 감정 한국어로 매핑 
     emotion_kor_map = {
@@ -80,7 +80,7 @@ async def lastest_short(db: Session = Depends(get_db)):
                 }
     
     emotion_counts = [(emotion_kor_map[x],y) for x, y in emotion_counts]
-    top_counts = [(top_counts[x],y) for x, y in top_counts] # 상위 3개
+    top_counts = [(emotion_kor_map[x],y) for x, y in top_counts] # 상위 3개
 
     # ChildShort 저장
     new_entry = ChildShort(
@@ -164,6 +164,7 @@ async def get_child_summary_detail(date: str, db: Session = Depends(get_db)):
 
     try:
         emotions = json.loads(item.emotion_counts or "{}")
+        top_counts = json.loads(item.top_counts or "{}")
     except (json.JSONDecodeError, TypeError):
         emotions = {}
 
@@ -171,6 +172,7 @@ async def get_child_summary_detail(date: str, db: Session = Depends(get_db)):
         "child_name": item.child_name,
         "date": str(item.date),
         "emotion_counts": emotions,
+        'top_counts':top_counts,
         "opinion_summary": item.short_summary,
         "text_summary": item.text_list_summray
     })

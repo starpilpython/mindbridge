@@ -65,7 +65,7 @@ def detect_faces(img_bytes):
             rep = DeepFace.represent(face_crop, model_name="Facenet", enforce_detection=False)[0]["embedding"]
             sim = cosine_similarity([target_embedding], [rep])[0][0]
 
-            if sim >= 0.01:
+            if sim >= 0.6:
                 emo = DeepFace.analyze(face_crop, actions=["emotion"], enforce_detection=False)[0]["dominant_emotion"]
                 print(f"유사도: {sim:.2f}, 감정: {emo}")
                 faces.append({

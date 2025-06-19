@@ -62,13 +62,25 @@ async def lastest_short(db: Session = Depends(get_db)):
         .filter(EmotionMessages.session_id == session_id)
         .all()
     )
-
-    emotion_list = []
-    for row in emotion_rows:
-        if row[0]:
-            emotion_list.extend(row[0].strip().split())
-
-    emotion_counts = Counter(emotion_list)
+    # 감정 개별적으로 카운트 하기 
+    emotion_str = emotion_rows[0].emotions  # ← 이게 가능하다면 가장 명확
+    practices = emotion_str.split(" ")
+    emo_list = [practice for practice in practices if practice != 'NO']
+    emotion_counts = Counter(emo_list)
+    top_counts = Counter(emo_list).most_common(3)
+    # 감정 한국어로 매핑 
+    emotion_kor_map = {
+                "angry": "분노",
+                "disgust": "혐오",
+                "fear": "두려움",
+                "happy": "행복",
+                "sad": "슬픔",
+                "surprise": "놀람",
+                "neutral": "중립"
+                }
+    
+    emotion_counts = [(emotion_kor_map[x],y) for x, y in emotion_counts]
+    top_counts = [(top_counts[x],y) for x, y in top_counts] # 상위 3개
 
     # ChildShort 저장
     new_entry = ChildShort(
@@ -78,6 +90,7 @@ async def lastest_short(db: Session = Depends(get_db)):
         short_summary=short_summary,
         text_list_summray=text_list_summray,
         emotion_counts=json.dumps(dict(emotion_counts)),  # 문자열로 저장
+        top_counts=json.dumps(dict(top_counts)),  # 문자열로 저장
         date=make_date
     )
     db.add(new_entry)
@@ -88,7 +101,8 @@ async def lastest_short(db: Session = Depends(get_db)):
         "session_date": make_date.isoformat(), 
         "opinion_summary": short_summary,
         "text_summary": text_list_summray,
-        "emotion_counts": dict(emotion_counts)  # 응답에도 포함
+        "emotion_counts": dict(emotion_counts),  # 응답에도 포함
+        "top_counts": dict(top_counts)  # 응답에도 포함
     })
 
 
@@ -102,16 +116,21 @@ async def get_child_summary_list(db: Session = Depends(get_db)):
         # 감정 문자열 파싱 안전하게 처리
         try:
             emotions = json.loads(item.emotion_counts or "{}")
+            top_counts = json.loads(item.top_counts or "{}")
         except (json.JSONDecodeError, TypeError):
             emotions = {}  # ← JSON 아니거나 잘못된 경우 빈 dict로
-        print(emotions)
+            top_counts = {}  # ← JSON 아니거나 잘못된 경우 빈 dict로
+
         result.append({
             "id": item.id,
             "user_id": item.user_id,
             "child_id": item.child_id,
             "child_name": item.child_name,
             "date": str(item.date),
-            "emotion_counts": emotions
+            "emotion_counts": emotions,
+            "top_counts": top_counts,  
+            "opinion_summary": item.short_summary, 
+            "text_summary": item.text_list_summray,
         })
 
     return JSONResponse(content=result)
@@ -134,3 +153,24 @@ async def get_emotion_summary(db: Session = Depends(get_db)):
     top_emotions = emotion_counts.most_common(3)  # 상위 3개 감정
 
     return JSONResponse(content=dict(top_emotions))
+
+
+# 세부 대시보드를 만들기 
+@router.get("/child_summary_detail", response_class=JSONResponse)
+async def get_child_summary_detail(date: str, db: Session = Depends(get_db)):
+    item = db.query(ChildShort).filter(ChildShort.date == date).first()
+    if not item:
+        return JSONResponse(status_code=404, content={"error": "No data found"})
+
+    try:
+        emotions = json.loads(item.emotion_counts or "{}")
+    except (json.JSONDecodeError, TypeError):
+        emotions = {}
+
+    return JSONResponse(content={
+        "child_name": item.child_name,
+        "date": str(item.date),
+        "emotion_counts": emotions,
+        "opinion_summary": item.short_summary,
+        "text_summary": item.text_list_summray
+    })

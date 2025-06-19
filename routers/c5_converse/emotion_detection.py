@@ -48,7 +48,7 @@ def detect_faces(img_bytes):
         width = x2 - x1
         height = y2 - y1
 
-        # ✅ 박스 축소 (중심 기준으로 80%)
+        # 박스 축소 (중심 기준으로 80%)
         shrink_ratio = 0.8
         center_x = x1 + width / 2
         center_y = y1 + height / 2
@@ -65,7 +65,7 @@ def detect_faces(img_bytes):
             rep = DeepFace.represent(face_crop, model_name="Facenet", enforce_detection=False)[0]["embedding"]
             sim = cosine_similarity([target_embedding], [rep])[0][0]
 
-            if sim >= 0.6:
+            if sim >= 0.01:
                 emo = DeepFace.analyze(face_crop, actions=["emotion"], enforce_detection=False)[0]["dominant_emotion"]
                 print(f"유사도: {sim:.2f}, 감정: {emo}")
                 faces.append({

@@ -66,7 +66,7 @@ def webtoon_main(CUTSCENE_CONFIG,filename):
     FONT_PATH = './statics/font/Pretendard-Bold.ttf'
 
     for scene in CUTSCENE_CONFIG:
-        bg = Image.open(f"./statics/webtoon/backgrounds/{scene['cut_id']}.png").convert("RGBA")
+        bg = Image.open(f"./statics/webtoon/backgrounds/{CUTSCENE_CONFIG[0]['cut_id']}.png").convert("RGBA")
         bg_w, bg_h = bg.size  # 배경 이미지 크기 측정
 
         # 캐릭터 이미지 로딩 및 위치 지정 (좌우 끝에 배치)

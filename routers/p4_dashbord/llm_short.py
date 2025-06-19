@@ -88,12 +88,95 @@ def emotions(emo_list):
     top3 = count.most_common(3)
     return top3
 
+
+# 테스트 하기 
 if __name__ == "__main__":
-    text_list =  " <|user|>\n안녕하세요. 오늘 기분이 좀 안 좋아요\n<|assistant|>\n무슨 일이 있었는지 이야기해 줄 수 있어요?\n<|user|>\n학교에서 친구랑 싸웠어요. 괜히 화가 나서 말실수도 했고요.\n<|assistant|>\n그랬구나. 친구와의 갈등이 속상했겠어요.\n<|user|>\n응, 사과는 하고 싶은데 어떻게 해야 할지 모르겠어요.\n<|assistant|>\n사과하고 싶은 마음이 중요한 첫걸음이에요. 진심을 담아서 이야기해보면 좋을 거예요.\n<|user|>\n그 동안의 이야기만 요약해줘 ."
-    print('대화:',text_list)
-    print()
-    print()
-    short_opinion(text_list)
+
+    # python -m routers.p4_dashbord.llm_short
+
+    # DB 불러오기 
+    from DB.models import ChatHistory, ChildShort,EmotionMessages
+    from DB.database import get_db
+    from sqlalchemy.orm import Session
+    from sqlalchemy import desc
+    from collections import Counter
+
+
+    # 핵심 기능 호출 
+    from routers.p4_dashbord import llm_short
+
+    # 함수 내부에서 수동으로 지정할 때 
+    db = next(get_db())
+
+
+    '''기존에 받은 내용 → 적합한 탬플릿 형식으로 바꾸기 '''
+    latest_session = (
+        db.query(ChatHistory)
+        .order_by(desc(ChatHistory.id))
+        .first()
+    )
+    
+    session_id = latest_session.session_id
+    name = latest_session.child_name
+    child_id = latest_session.user_id
+    make_date = latest_session.date
+
+    print(name)
+
+    
+    # 대화 로그 수집
+    if latest_session:
+        chat_logs = (
+            db.query(ChatHistory)
+            .filter(ChatHistory.session_id == session_id)
+            .order_by(ChatHistory.id)
+            .all()
+        )
+
+    dialogue = ""
+    for log in chat_logs:
+        prefix = "<|assistant|>" if log.role == "assistant" else "<|user|>"
+        dialogue += f"{prefix}\n{log.content.strip()}\n"
+    dialogue = dialogue.strip()
+    dialogue += "\n<|user|>\n그 동안의 이야기만 요약만 해줘.\n"
+
+    # 요약 결과
+    short_summary, text_list_summray = llm_short.short_opinion(dialogue)
+
+    # 감정 기록 수집 및 집계
+    emotion_rows = (
+        db.query(EmotionMessages.emotions)
+        .filter(EmotionMessages.session_id == session_id)
+        .all()
+    )
+
+    # 감정 개수 세기 
+    from collections import Counter
+    practices = emotion_rows[0].split(" ")
+    emo_list = [practice for practice in practices if practice != 'NO']
+    Counter(emo_list)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

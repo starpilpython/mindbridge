@@ -3,6 +3,8 @@ from peft import PeftModel, PeftConfig
 import torch
 from llama_cpp import Llama # gguf llm 파일 모델 실행
 from collections import Counter
+import os
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
 # 요약 
 # GEMMA3 활용
@@ -91,114 +93,88 @@ def emotions(emo_list):
 
 # 테스트 하기 
 if __name__ == "__main__":
-
-    # python -m routers.p4_dashbord.llm_short
-
-    # DB 불러오기 
-    from DB.models import ChatHistory, ChildShort,EmotionMessages
-    from DB.database import get_db
-    from sqlalchemy.orm import Session
-    from sqlalchemy import desc
+    import sqlite3
+    import json
     from collections import Counter
+    from datetime import date
 
+    # DB 연결
+    conn = sqlite3.connect("chat.db")
+    cursor = conn.cursor()
 
-    # 핵심 기능 호출 
-    from routers.p4_dashbord import llm_short
+    # 날짜 기준으로 고유 날짜 목록 가져오기
+    cursor.execute("SELECT DISTINCT date FROM chat_history ORDER BY date ASC")
+    all_dates = [row[0] for row in cursor.fetchall()]
 
-    # 함수 내부에서 수동으로 지정할 때 
-    db = next(get_db())
+    # 감정명 매핑
+    emotion_kor_map = {
+        "angry": "분노", "disgust": "혐오", "fear": "두려움",
+        "happy": "행복", "sad": "슬픔", "surprise": "놀람", "neutral": "중립"
+    }
 
+    for current_date in all_dates:
+        print(f"📅 날짜 처리 중: {current_date}")
 
-    '''기존에 받은 내용 → 적합한 탬플릿 형식으로 바꾸기 '''
-    latest_session = (
-        db.query(ChatHistory)
-        .order_by(desc(ChatHistory.id))
-        .first()
-    )
-    
-    session_id = latest_session.session_id
-    name = latest_session.child_name
-    child_id = latest_session.user_id
-    make_date = latest_session.date
+        # (1) 해당 날짜 전체 대화 가져오기
+        cursor.execute("""
+            SELECT user_id, child_name, content, role, session_id
+            FROM chat_history
+            WHERE date = ?
+            ORDER BY id
+        """, (current_date,))
+        rows = cursor.fetchall()
+        if not rows:
+            print(f"[SKIP] 대화 없음 - date={current_date}")
+            continue
 
-    print(name)
+        child_id = rows[0][0]
+        child_name = rows[0][1]
+        session_id = rows[0][4]
 
-    
-    # 대화 로그 수집
-    if latest_session:
-        chat_logs = (
-            db.query(ChatHistory)
-            .filter(ChatHistory.session_id == session_id)
-            .order_by(ChatHistory.id)
-            .all()
-        )
+        # 대화 문자열 구성
+        dialogue = ""
+        for _, _, content, role, _ in rows:
+            prefix = "<|assistant|>" if role == "assistant" else "<|user|>"
+            dialogue += f"{prefix}\n{content.strip()}\n"
+        dialogue = dialogue.strip() + "\n<|user|>\n그 동안의 이야기만 요약만 해줘.\n"
 
-    dialogue = ""
-    for log in chat_logs:
-        prefix = "<|assistant|>" if log.role == "assistant" else "<|user|>"
-        dialogue += f"{prefix}\n{log.content.strip()}\n"
-    dialogue = dialogue.strip()
-    dialogue += "\n<|user|>\n그 동안의 이야기만 요약만 해줘.\n"
+        # (2) 요약 실행
+        try:
+            short_summary, text_list_summray = short_opinion(dialogue)
+        except Exception as e:
+            print(f"[ERROR] 요약 실패 - date={current_date} / error={e}")
+            continue
 
-    # 요약 결과
-    short_summary, text_list_summray = llm_short.short_opinion(dialogue)
+        # (3) 감정 가져오기
+        cursor.execute("SELECT emotions FROM emotion_messages WHERE session_id = ?", (session_id,))
+        row = cursor.fetchone()
+        if not row:
+            print(f"[SKIP] 감정 없음 - session_id={session_id}")
+            continue
 
-    # 감정 기록 수집 및 집계
-    emotion_rows = (
-        db.query(EmotionMessages.emotions)
-        .filter(EmotionMessages.session_id == session_id)
-        .all()
-    )
+        emotion_str = row[0]
+        emo_list = [e for e in emotion_str.strip().split() if e != "NO"]
+        counts = Counter(emo_list).most_common()
+        top3 = counts[:3]
 
-    # 감정 개수 세기 
-    from collections import Counter
-    practices = emotion_rows[0].split(" ")
-    emo_list = [practice for practice in practices if practice != 'NO']
-    Counter(emo_list)
+        emotion_counts = [(emotion_kor_map.get(x, x), y) for x, y in counts]
+        top_counts = [(emotion_kor_map.get(x, x), y) for x, y in top3]
 
+        # (4) 저장
+        cursor.execute("""
+            INSERT INTO child_short (user_id, child_id, child_name, short_summary, text_list_summray, emotion_counts, top_counts, date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            "PARENT01",
+            child_id,
+            child_name,
+            short_summary,
+            text_list_summray,
+            json.dumps(dict(emotion_counts), ensure_ascii=False),
+            json.dumps(dict(top_counts), ensure_ascii=False),
+            current_date
+        ))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    conn.commit()
+    conn.close()
+    print("✅ 모든 날짜별 세션에 대해 요약 및 감정 결과 저장 완료.")

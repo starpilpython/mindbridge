@@ -11,26 +11,23 @@ llm = Llama(model_path="/home/elicer/mindbridge/AI_model/gemma-3-4B-it-QAT-Q4_0.
 
 
 # ==== 1. 음성 → 텍스트 ====
-
 def speech_to_text(filepath, model):
-    print("Whisper로 음성을 텍스트로 변환 중...")
+    print(f"[Whisper] 입력 파일 경로: {filepath}")
+    
     try:
-        segments, _  = model.transcribe(filepath)
-        segments = list(segments)
-        result = ""
-        # 문장별로 분할된 결과를 하나로 합치는 과정 
-        for segment in segments:
-            result = result + " " + segment.text
-       
-        print("텍스트 변환 결과:")
-        print(result)
-        return result
+        # 파일 정보 출력
+        info = torchaudio.info(filepath)
+        print(f"[Whisper] 샘플레이트: {info.sample_rate}, 채널 수: {info.num_channels}, 길이(초): {info.num_frames / info.sample_rate:.2f}s")
         
+        result = model.transcribe(filepath)  # 기본 whisper는 딕셔너리 반환
+        print(f"[Whisper] 전체 결과: {result['text'].strip()}")
+        return result["text"].strip()
+
     except Exception as e:
-        print(f"Transcription error: {e}")
+        print(f"[Whisper 오류] {e}")
         return None
-
-
+    
+    
 # ==== 2. LLM 질문 ====
 
 # LLM에 보낼 메시지 형식이 올바른지 검사하는 함수(user ↔ assistant 처럼 역할이 변갈아 가는 것)
@@ -93,3 +90,37 @@ def text_to_speech(audio_path, text, output_path, voice_model, make_cond_dict):
     print("음성 생성 완료")
     return output_path
 
+# ==== 테스트 실행 ====
+if __name__ == "__main__":
+    from faster_whisper import WhisperModel
+    import sounddevice as sd
+    print(sd.query_devices())
+    print(sd.default.device)
+    from scipy.io.wavfile import write
+
+    def record_audio(filename="sample.wav", duration=5, fs=16000):
+        print(f"{duration}초 동안 마이크로부터 녹음합니다...")
+        audio = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
+        sd.wait()
+        write(filename, fs, audio)
+        print(f"녹음 완료: {filename}")
+        return filename
+
+    # 1. 녹음
+    input_audio = record_audio("sample.wav", duration=5)
+
+    # 2. Whisper 모델 로딩
+    whisper_model = WhisperModel("base", compute_type="float16")
+
+    # 3. 음성 인식
+    text = speech_to_text(input_audio, whisper_model)
+
+    # 4. LLM 응답
+    if text:
+        messages = [
+            {"role": "system", "content": "당신은 유용하고 정중한 비서입니다."},
+            {"role": "user", "content": text}
+        ]
+        validate_message_sequence(messages)
+        response = ask_llm(text, messages)
+        print("LLM 응답:", response)

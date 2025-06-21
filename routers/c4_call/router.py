@@ -25,7 +25,7 @@ from zonos.conditioning import make_cond_dict
 ###################################################################
 
 # 위스퍼 패키지 로드 
-from faster_whisper import WhisperModel
+import whisper
 
 # Fastapi 라우터 설정하는 패키지
 from fastapi import APIRouter, Depends
@@ -57,7 +57,7 @@ def voice_model():
     MODEL_NAME = "Zyphra/Zonos-v0.1-transformer"
     DEVICE = "cuda" 
     zonos_model = Zonos.from_pretrained(MODEL_NAME, device=DEVICE)
-    whisper_model = WhisperModel("base", device="cuda") # 위스퍼 모델 cuda 사용 및 base 모델 사용
+    whisper_model = whisper.load_model("base").to("cuda") # 위스퍼 모델 cuda 사용 및 base 모델 사용
 
 # FastAPI에서 애플리케이션이 시작될 때 모델을 로드
 voice_model()

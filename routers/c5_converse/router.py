@@ -147,6 +147,7 @@ async def converse(request: Request, file: UploadFile = None, db: Session = Depe
     REFER = REFER_DIR / audio
     output_file = text_to_speech(REFER, ai_answer, RESULT_DIR, zonos_model, make_cond_dict)
 
+
     return JSONResponse({
         "audio_url": f"/statics/result_audio/{output_file.name}",
         "text": ai_answer
@@ -175,8 +176,15 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
 
     # 새로운 감정들을 문자열로 정리
     new_emotions = " ".join(face["emotion"] for face in detected_faces if "emotion" in face)
-    print(new_emotions)
+    print_emotions = " ".join(
+        face["emotion"]
+        for face in detected_faces
+        if "emotion" in face and face["emotion"] != "No"
+    )
     print('-------------------')
+    print('감정 리스트 ')
+    print(print_emotions)
+
     # 기존 감정 기록 불러오기
     latest = (
         db.query(EmotionMessages)
@@ -199,9 +207,7 @@ async def detect(request: Request, file: UploadFile = None, db: Session = Depend
         )
         db.add(latest)
         
-    
     db.commit()
-    print(latest.emotions)
     # 응답
     return JSONResponse(content={"faces": detected_faces})
 

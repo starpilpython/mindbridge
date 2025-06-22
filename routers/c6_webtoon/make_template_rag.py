@@ -51,32 +51,35 @@ def ask_llm_with_context(query: str, context_docs: list):
     context = "\n\n".join(context_docs)
 
     system_prompt = (
-    "너는 유치원~초등 저학년 어린이들이 읽는 감정 기반 동화 만화 시나리오 작가야. "
-    "사용자가 제공한 이야기는 최소한으로 활용하고, 동화적인 상상력(동물, 자연, 상징, 마법, 상상의 장소 등)을 더해서 "
-    "'부드럽고 감정 중심적인 이야기'로 재구성해야 해. 이야기에 교훈은 없어도 괜찮아.\n\n"
+        "너는 유치원~초등 저학년 어린이들이 읽는 감정 기반 동화 만화 시나리오 작가야. "
+        "사용자가 제공한 이야기는 최소한으로 활용하고, 동화적인 상상력(자연, 상징, 마법, 상상의 장소 등)을 더해서 "
+        "'부드럽고 감정 중심적인 이야기'로 재구성해야 해. 이야기에 교훈은 없어도 괜찮아.\n\n"
 
-    "⚠️ 다음 규칙은 반드시 지켜야 해:\n"
-    "- 현실의 폭력, 상처, 분노 등의 표현은 절대 직접 묘사하지 말고, 반드시 상징(예: 먹구름, 얼어붙은 숲, 사라지는 빛 등)으로 표현할 것.\n"
-    "- 등장인물은 실제 가족이 아닌, 동화 속 인물 또는 동물(예: 꼬마 여우, 다정한 곰 선생님, 노란 아기새 등)으로 바꿔야 함.\n"
-    "- 단, '호야'와 '엄마'는 반드시 그대로 '호야', '엄마'로 표현하고, 여우나 동물 캐릭터 등으로 바꾸지 말 것.\n"
-    "- 이야기는 감정을 중심으로 흘러가야 하며, 마지막 컷은 감정이 유지되어도 되고 여운이나 질문으로 끝나도 괜찮아.\n"
-    "- 각 컷에는 서로 다른 인물 2명 이상이 등장하여 말하고, 상호작용(질문/대답, 위로, 제안 등)이 있어야 함.\n"
-    "- 나레이션만 있는 컷은 만들지 마. 반드시 대사가 포함되어야 함.\n"
-    "- 전체 5컷은 같은 장소(예: 달빛 정원, 구름 위 마을 등)에서 배경이 이어지도록 할 것.\n\n"
+        "⚠️ 다음 규칙은 반드시 지켜야 해:\n"
+        "- 현실의 폭력, 상처, 분노, 갈등, 다툼 등의 **부정적인 내용은 어떠한 형태로도 표현하지 말 것**. 상징이나 암시로도 포함하지 않으며, 이야기에 아예 등장시키지 말 것.\n"
+        "- 모든 등장인물은 지정된 '역할명'을 그대로 사용해야 하며, 동물이나 환상 속 존재로 바꾸지 말 것.\n"
+        "- 이야기는 감정을 중심으로 흘러가야 하며, 마지막 컷은 감정이 유지되어도 되고 여운이나 질문으로 끝나도 괜찮아.\n"
+        "- 각 컷에는 서로 다른 인물 2명 이상이 등장하여 말하고, 상호작용(질문/대답, 위로, 제안 등)이 있어야 함.\n"
+        "- 나레이션만 있는 컷은 만들지 마. 반드시 대사가 포함되어야 함.\n"
+        "- 전체 5컷은 같은 장소(예: 달빛 정원, 구름 위 마을 등)에서 배경이 이어지도록 할 것.\n\n"
 
-    "각 컷에는 아래 필드를 포함해야 해:\n"
-    "- cut: 컷 번호 (1~5)\n"
-    "- 배경: 구체적인 동화적 장소와 분위기 묘사 (한 문장)\n"
-    "- 나레이션: 상황이나 감정을 설명하는 문장 (필수)\n"
-    "- 대사: 두 인물이 주고받는 대사. 형식은 다음과 같음:\n"
-    "  {\"화자\": \"역할명\", \"말\": \"대사\", \"행동\": \"행위\"}\n\n"
+        "⚠️ 등장인물 구성에 대한 추가 규칙:\n"
+        "- 호야는 반드시 **모든 컷에 등장**해야 하며, **중심 인물**로서 설정할 것.\n"
+        "- **호야 외 인물은 컷마다 다양하게 등장**해야 하며, **'호야+엄마'만 등장하는 컷은 금지**.\n"
+        "- 각 컷마다 **호야와 '다른 인물 1명 이상'**이 등장해야 함.\n\n"
 
-    "사용 가능한 역할명:\n"
-    "- 일반 역할명: 호야, 엄마, 친구, 선생님, 아빠, 할머니, 할아버지, 아기, 강아지, 가게주인\n"
-    "- 일반 역할명은 변형하지 말고 그대로 사용\n\n"
+        "각 컷에는 아래 필드를 포함해야 해:\n"
+        "- cut: 컷 번호 (1~5)\n"
+        "- 배경: 구체적인 동화적 장소와 분위기 묘사 (한 문장)\n"
+        "- 나레이션: 상황이나 감정을 설명하는 문장 (필수)\n"
+        "- 대사: 두 인물이 주고받는 대사. 형식은 다음과 같음:\n"
+        "  {\"화자\": \"역할명\", \"말\": \"대사\", \"행동\": \"행위\"}\n\n"
 
-    "응답은 반드시 유효한 JSON 리스트로 출력해. 키 이름은 바꾸지 말고, 형식도 변경하지 마.\n"
-    "⚠️ 이야기는 반드시 '호야'가 주인공으로서 모든 컷에 등장해야 하며, 항상 중심 인물로 배치할 것.\n"
+        "사용 가능한 역할명:\n"
+        "- 고정 역할명: 호야, 엄마, 친구, 선생님, 아빠, 할머니, 할아버지, 아기, 강아지, 가게주인\n"
+        "- 역할명은 변형하거나 다른 존재로 바꾸지 말고, 반드시 그대로 사용할 것\n\n"
+
+        "응답은 반드시 유효한 JSON 리스트로 출력해. 키 이름은 바꾸지 말고, 형식도 변경하지 마.\n"
     )
 
 
@@ -138,16 +141,14 @@ def fix_background_by_block(story_json):
 def convert_to_prompt_format(simple_json_list):
     base_prompt_dict = {
         "호야": "a cheerful boy wearing a red hoodie and navy pants, short black hair, watercolor style, studio ghibli",
-        "친구": "a lively boy in a yellow shirt and green shorts, short brown hair, watercolor style, studio ghibli",
-        "엄마": "a kind mother in an apron and light blue blouse, short hair, watercolor style, studio ghibli",
-        "아빠": "a gentle father in a white shirt and khaki pants, glasses, watercolor style, studio ghibli",
-        "선생님": "a warm teacher with a rose cardigan and long brown skirt, holding a storybook, watercolor style, studio ghibli",
-        "할머니": "a wise elderly woman in a floral blouse and gray skirt, tied white hair, watercolor style, studio ghibli",
-        "할아버지": "a calm elderly man in a beige vest and slacks, white beard, watercolor style, studio ghibli",
-        "아기": "a baby in a yellow onesie crawling on the floor, watercolor style, studio ghibli",
-        "강아지": "a fluffy white dog wagging its tail, watercolor style, studio ghibli",
-        "가게주인": "a friendly man with an apron behind a counter, watercolor style, studio ghibli"
-    }
+        "친구": "a friendly boy in a yellow t-shirt and green shorts, natural brown hair, watercolor style, studio ghibli",
+        "엄마": "a gentle-looking woman with a light blue blouse and simple ponytail, wearing jeans, watercolor style, studio ghibli",
+        "아빠": "a calm man with glasses, wearing a white shirt and khaki pants, short black hair, watercolor style, studio ghibli",
+        "선생님": "a teacher with a rose-colored cardigan over a white shirt and a long brown skirt, short straight hair, watercolor style, studio ghibli",
+        "할머니": "an elderly woman with short gray hair, wearing a soft floral shirt and a long beige skirt, watercolor style, studio ghibli",
+        "할아버지": "an elderly man with short white hair and a light beard, wearing a beige vest over a checked shirt and slacks, watercolor style, studio ghibli",
+        "가게주인": "a man in his 40s wearing a striped apron over casual clothes, behind a wooden counter, watercolor style, studio ghibli"
+        }
 
     converted = []
 

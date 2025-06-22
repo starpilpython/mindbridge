@@ -14,7 +14,7 @@ def get_audio_duration(path):
     return infot.num_frames / infot.sample_rate
 
 # 흔들림용 사인파 함수   ← 지정된 길이와 FPS로 사인파 형태의 이동량 리스트 생성 (픽셀 단위)
-def get_sine_motion_frames(duration, fps=30, amplitude=3):
+def get_sine_motion_frames(duration, fps=30, amplitude=8):
     frames = int(duration * fps)
     return [int(amplitude * np.sin(2 * np.pi * i / 40)) for i in range(frames)]
 
@@ -33,32 +33,83 @@ def apply_motion(image, shifts, axis='y'):
 
 
 # 자막 생성  ← 이미지 하단에 자막을 추가하는 함수
-def draw_subtitle(image_np, text, font_path, width=60):
-    # numpy 배열 → PIL 이미지로 변환
+def draw_subtitle(image_np, speaker, text, font_path, max_font_size=32, margin=20):
+    from PIL import ImageDraw, ImageFont, Image
+    import numpy as np
+
     image = Image.fromarray(image_np)
     draw = ImageDraw.Draw(image)
-
-    # 이미지 크기
     w, h = image.size
 
-    # 폰트 로드 (크기는 필요에 맞게 조정)
-    font = ImageFont.truetype(font_path, size=32)
+    # 전체 자막 텍스트 구성
+    full_text = f"{speaker}: {text}" if speaker else text
 
-    # 줄바꿈 처리
-    lines = textwrap.wrap(text, width)
+    # 폰트 설정
+    font = ImageFont.truetype(font_path, size=max_font_size)
 
-    # 자막 배경 사각형 (하단 20%)
-    subtitle_height = int(h * 0.25)
+    # 실제 가로폭에 맞춰 줄바꿈
+    lines = []
+    words = full_text.split()
+    current_line = ""
+
+    for word in words:
+        test_line = current_line + " " + word if current_line else word
+        if draw.textlength(test_line, font=font) <= w - 2 * margin:
+            current_line = test_line
+        else:
+            lines.append(current_line)
+            current_line = word
+    if current_line:
+        lines.append(current_line)
+
+    # 줄간격 및 높이 계산
+    ascent, descent = font.getmetrics()
+    line_height = ascent + descent + 6
+    subtitle_height = line_height * len(lines) + margin * 2
+
+    # 배경 박스
     draw.rectangle([(0, h - subtitle_height), (w, h)], fill=(0, 0, 0))
 
-    # 자막 텍스트 쓰기
+    # 텍스트 출력
     for i, line in enumerate(lines):
-        y = h - subtitle_height + 20 + i * 36
-        draw.text((20, y), line, font=font, fill=(255, 255, 255))
+        y = h - subtitle_height + margin + i * line_height
+        draw.text((margin, y), line, font=font, fill=(255, 255, 255))
 
-    # 다시 numpy 배열로 변환해서 반환
     return np.array(image)
 
+'''def draw_subtitle(image_np, text, font_path, max_line_chars=40, max_font_size=32, margin=20):
+    # 이미지 변환
+    image = Image.fromarray(image_np)
+    draw = ImageDraw.Draw(image)
+    w, h = image.size
+
+    # 텍스트 줄바꿈 
+    lines = textwrap.wrap(text, width=max_line_chars)
+    num_lines = len(lines)
+
+    # 폰트 크기 자동 조정 (최대 줄 수 6줄 기준으로 비율 조절)
+    max_lines_allowed = 6
+    scale = min(1.0, max_lines_allowed / num_lines)
+    font_size = int(max_font_size * scale)
+    font = ImageFont.truetype(font_path, size=font_size)
+
+    # 줄 높이 계산
+    ascent, descent = font.getmetrics()
+    line_height = ascent + descent
+    line_spacing = line_height + 6
+
+    # 전체 자막 높이 계산
+    subtitle_height = line_spacing * num_lines + margin * 2
+
+    # 배경 박스
+    draw.rectangle([(0, h - subtitle_height), (w, h)], fill=(0, 0, 0))
+
+    # 텍스트 출력
+    for i, line in enumerate(lines):
+        y = h - subtitle_height + margin + i * line_spacing
+        draw.text((margin, y), line, font=font, fill=(255, 255, 255))
+
+    return np.array(image)'''
 
 # 최종 실행 함수 
 def webtoon_main(CUTSCENE_CONFIG,filename):
@@ -87,9 +138,9 @@ def webtoon_main(CUTSCENE_CONFIG,filename):
         for seg_idx, segment in enumerate(scene.get("segments", [])):
             seg_type = segment["type"]
 
-            if segment["type"] == "대화":
+            if segment["type"] == "대사":
                 speaker = segment.get("speaker", "")
-                text = f"[{speaker}] {segment['text']}"
+                text = f"[{speaker}] : {segment['text']}"
             else:
                 text = segment["text"]
                 

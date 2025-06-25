@@ -1,0 +1,32 @@
+<html>
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=yes">
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/index.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/subsets/AppleSDGothicNeo-dynamic-subset.css"
+        type="text/css" />
+
+    <title>마음다리</title> 
+</head>
+<body id="index">
+  <h1>마음다리</h1>
+  <a href="templates/p_1_registration.html">부모용!</a>
+  <a href= 'templates/c_1_home.html'>아이용!</a>
+</body>
+
+<!-- pwa 에 필요한 경우 오프라인 캐시 저장 -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker registered', reg))
+      .catch(err => console.error('Service Worker registration failed', err));
+  }
+</script>
+</html>

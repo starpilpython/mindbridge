@@ -1,3 +1,4 @@
+# 시나리오 작성기 rag 기술 활용 
 from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
@@ -66,7 +67,7 @@ def ask_llm_with_context(query: str, context_docs: list):
         "⚠️ 등장인물 구성에 대한 추가 규칙:\n"
         "- 호야는 반드시 **모든 컷에 등장**해야 하며, **중심 인물**로서 설정할 것.\n"
         "- **호야 외 인물은 컷마다 다양하게 등장**해야 하며, **'호야+엄마'만 등장하는 컷은 금지**.\n"
-        "- 각 컷마다 **호야와 '다른 인물 1명 이상'**이 등장해야 함.\n\n"
+        "- 각 컷마다 **호야와 '다른 인물 1명만'**이 등장해야 함.\n\n"
 
         "각 컷에는 아래 필드를 포함해야 해:\n"
         "- cut: 컷 번호 (1~5)\n"

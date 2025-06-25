@@ -1,3 +1,4 @@
+# 웹툰 합성 및 자막 생성하여 최종 구성 
 import torchaudio
 import numpy as np
 from PIL import Image
@@ -32,7 +33,7 @@ def apply_motion(image, shifts, axis='y'):
     return frames
 
 
-# 자막 생성  ← 이미지 하단에 자막을 추가하는 함수
+'''# 자막 생성  ← 이미지 하단에 자막을 추가하는 함수
 def draw_subtitle(image_np, speaker, text, font_path, max_font_size=32, margin=20):
     from PIL import ImageDraw, ImageFont, Image
     import numpy as np
@@ -75,9 +76,9 @@ def draw_subtitle(image_np, speaker, text, font_path, max_font_size=32, margin=2
         y = h - subtitle_height + margin + i * line_height
         draw.text((margin, y), line, font=font, fill=(255, 255, 255))
 
-    return np.array(image)
+    return np.array(image)'''
 
-'''def draw_subtitle(image_np, text, font_path, max_line_chars=40, max_font_size=32, margin=20):
+def draw_subtitle(image_np, text, font_path, max_line_chars=40, max_font_size=32, margin=20):
     # 이미지 변환
     image = Image.fromarray(image_np)
     draw = ImageDraw.Draw(image)
@@ -109,7 +110,7 @@ def draw_subtitle(image_np, speaker, text, font_path, max_font_size=32, margin=2
         y = h - subtitle_height + margin + i * line_spacing
         draw.text((margin, y), line, font=font, fill=(255, 255, 255))
 
-    return np.array(image)'''
+    return np.array(image)
 
 # 최종 실행 함수 
 def webtoon_main(CUTSCENE_CONFIG,filename):

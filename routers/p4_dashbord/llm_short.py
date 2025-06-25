@@ -1,3 +1,4 @@
+# 아이의 말을 일반 해석 및 임상가 소견 요약 
 from transformers import BartForConditionalGeneration, PreTrainedTokenizerFast
 from peft import PeftModel, PeftConfig
 import torch

@@ -1,3 +1,4 @@
+# 캐릭터 생성 파이프 라인 얼굴 임베딩 진행 
 import sys
 from pathlib import Path
 

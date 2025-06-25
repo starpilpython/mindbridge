@@ -1,3 +1,4 @@
+# 데이터 베이스 구축 해당 프로젝트에서는 로컬 DB 활용
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 

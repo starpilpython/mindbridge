@@ -1,4 +1,4 @@
-# DB 구성하는 코드 
+# 각 데이터 베이스 구성하는 칼럼 생성 
 from sqlalchemy import Column, Integer, String, Text, Date
 from .database import Base
 from datetime import date

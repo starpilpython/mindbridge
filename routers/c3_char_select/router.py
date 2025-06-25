@@ -1,4 +1,5 @@
 # [아동 사이드] 캐릭터 선택창 라우터 설정
+# 선택된 오디오 선택 -> 추후 제로샷 학습으로 목소리 클로닝 예정 
 
 from fastapi import APIRouter, Request, Depends
 from DB.models import MemberList

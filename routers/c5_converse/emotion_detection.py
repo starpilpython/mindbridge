@@ -1,3 +1,4 @@
+# 감정 인식 
 from ultralytics import YOLO
 from deepface import DeepFace
 from sklearn.metrics.pairwise import cosine_similarity 

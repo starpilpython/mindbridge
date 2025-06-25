@@ -1,4 +1,7 @@
 # 실시간 대화에 필요한 핵심 기능을 넣은 함수
+# 위스퍼 활용 (stt)
+# 목소리 클로닝(zonos 깃헙에서 다운 필요)
+# llm gemma3 활용 
 
 from pathlib import Path # 절대경로로 변환
 import torchaudio

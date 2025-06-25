@@ -1,3 +1,4 @@
+# 캐릭터 음성 생성 
 import sys
 from pathlib import Path
 

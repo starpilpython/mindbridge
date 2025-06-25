@@ -1,4 +1,4 @@
-# 배경 생성기
+# 배경 생성
 # Ghibli 스타일 배경을 생성하는 스크립트
 from pathlib import Path
 from PIL import ImageFilter

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=yes">
+  <meta http-equiv=X-UA-Compatible content="IE=edge">
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+  <link rel="stylesheet" type="text/css" href="../static/css/index.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/subsets/AppleSDGothicNeo-dynamic-subset.css"
+    type="text/css" />
+
+  <!-- FullCalendar core -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
+
+  <title>일기</title>
+</head>
+
+<body id="c_8">
+  <header>
+    <p class="prev"><svg onclick="history.go(-1)" width="50px" height="50px" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="SVGRepo_iconCarrier">
+          <path d="M6 12H18M6 12L11 7M6 12L11 17" stroke="#333" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </g>
+      </svg></p>
+    <h3>내 일기</h3>
+  </header>
+
+  <div class="container">
+    <div class="calendar-section">
+
+      <div class="calendar-header">
+        <div class="nav-buttons">
+          <button id="prevBtn">〈</button>
+          <button id="nextBtn">〉</button>
+          <button id="todayBtn">오늘</button>
+        </div>
+        <div id="calendarTitle" class="month-title">캘린더</div>
+        <button id="toggleView"><svg width="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path
+                d="M6.96006 2C7.37758 2 7.71605 2.30996 7.71605 2.69231V4.08883C8.38663 4.07692 9.13829 4.07692 9.98402 4.07692H14.016C14.8617 4.07692 15.6134 4.07692 16.284 4.08883V2.69231C16.284 2.30996 16.6224 2 17.0399 2C17.4575 2 17.7959 2.30996 17.7959 2.69231V4.15008C19.2468 4.25647 20.1992 4.51758 20.899 5.15838C21.5987 5.79917 21.8838 6.67139 22 8V9H2V8C2.11618 6.67139 2.4013 5.79917 3.10104 5.15838C3.80079 4.51758 4.75323 4.25647 6.20406 4.15008V2.69231C6.20406 2.30996 6.54253 2 6.96006 2Z"
+                fill="#333"></path>
+              <path opacity="0.5"
+                d="M22 14V12C22 11.161 21.9873 9.66527 21.9744 9H2.00586C1.99296 9.66527 2.00564 11.161 2.00564 12V14C2.00564 17.7712 2.00564 19.6569 3.17688 20.8284C4.34813 22 6.23321 22 10.0034 22H14.0023C17.7724 22 19.6575 22 20.8288 20.8284C22 19.6569 22 17.7712 22 14Z"
+                fill="#333"></path>
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M18.75 16.5C17.5074 16.5 16.5 17.5074 16.5 18.75C16.5 19.9926 17.5074 21 18.75 21C19.9926 21 21 19.9926 21 18.75C21 17.5074 19.9926 16.5 18.75 16.5ZM15 18.75C15 16.6789 16.6789 15 18.75 15C20.8211 15 22.5 16.6789 22.5 18.75C22.5 19.5143 22.2713 20.2252 21.8787 20.818L23.2803 22.2197C23.5732 22.5126 23.5732 22.9874 23.2803 23.2803C22.9874 23.5732 22.5126 23.5732 22.2197 23.2803L20.818 21.8787C20.2252 22.2713 19.5143 22.5 18.75 22.5C16.6789 22.5 15 20.8211 15 18.75Z"
+                fill="#333"></path>
+            </g>
+          </svg></button>
+      </div>
+
+      <div id="calendar"></div>
+
+      <div class="ani-card">
+        <div class="diary-date"></div>
+        <div class="ani-title">용감한 호랑이의 하루</div>
+        <p class="diary-weather">기분 맑음 ☀️</p>
+        <div class="ani-details">
+          <video width="90%" height="auto" controls autoplay>
+            <source src="https://nfredmpfjwwrknjr.tunnel.elice.io//video/final" type="video/mp4">
+            브라우저가 video 태그를 지원하지 않습니다.
+          </video>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <a href="c_1_home.html">
+          <span class="icon"><svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M21.5315 11.5857L20.75 10.9605V21.25H22C22.4142 21.25 22.75 21.5858 22.75 22C22.75 22.4143 22.4142 22.75 22 22.75H2.00003C1.58581 22.75 1.25003 22.4143 1.25003 22C1.25003 21.5858 1.58581 21.25 2.00003 21.25H3.25003V10.9605L2.46855 11.5857C2.1451 11.8445 1.67313 11.792 1.41438 11.4686C1.15562 11.1451 1.20806 10.6731 1.53151 10.4144L9.65742 3.91366C11.027 2.818 12.9731 2.818 14.3426 3.91366L22.4685 10.4144C22.792 10.6731 22.8444 11.1451 22.5857 11.4686C22.3269 11.792 21.855 11.8445 21.5315 11.5857ZM12 6.75004C10.4812 6.75004 9.25003 7.98126 9.25003 9.50004C9.25003 11.0188 10.4812 12.25 12 12.25C13.5188 12.25 14.75 11.0188 14.75 9.50004C14.75 7.98126 13.5188 6.75004 12 6.75004ZM13.7459 13.3116C13.2871 13.25 12.7143 13.25 12.0494 13.25H11.9507C11.2858 13.25 10.7129 13.25 10.2542 13.3116C9.76255 13.3777 9.29128 13.5268 8.90904 13.9091C8.52679 14.2913 8.37773 14.7626 8.31163 15.2542C8.24996 15.7129 8.24999 16.2858 8.25003 16.9507L8.25003 21.25H9.75003H14.25H15.75L15.75 16.9507L15.75 16.8271C15.7498 16.2146 15.7462 15.6843 15.6884 15.2542C15.6223 14.7626 15.4733 14.2913 15.091 13.9091C14.7088 13.5268 14.2375 13.3777 13.7459 13.3116Z"
+                  fill="#f08000"></path>
+                <g opacity="0.5">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M10.75 9.5C10.75 8.80964 11.3096 8.25 12 8.25C12.6904 8.25 13.25 8.80964 13.25 9.5C13.25 10.1904 12.6904 10.75 12 10.75C11.3096 10.75 10.75 10.1904 10.75 9.5Z"
+                    fill="#f08000"></path>
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M10.75 9.5C10.75 8.80964 11.3096 8.25 12 8.25C12.6904 8.25 13.25 8.80964 13.25 9.5C13.25 10.1904 12.6904 10.75 12 10.75C11.3096 10.75 10.75 10.1904 10.75 9.5Z"
+                    fill="#f08000"></path>
+                </g>
+                <path opacity="0.5"
+                  d="M12.0494 13.25C12.7142 13.25 13.2871 13.2499 13.7458 13.3116C14.2375 13.3777 14.7087 13.5268 15.091 13.909C15.4732 14.2913 15.6223 14.7625 15.6884 15.2542C15.7462 15.6842 15.7498 16.2146 15.75 16.827L15.75 21.25H8.25L8.25 16.9506C8.24997 16.2858 8.24993 15.7129 8.31161 15.2542C8.37771 14.7625 8.52677 14.2913 8.90901 13.909C9.29126 13.5268 9.76252 13.3777 10.2542 13.3116C10.7129 13.2499 11.2858 13.25 11.9506 13.25H12.0494Z"
+                  fill="#f08000"></path>
+                <path opacity="0.5"
+                  d="M16 3H18.5C18.7761 3 19 3.22386 19 3.5L19 7.63955L15.5 4.83955V3.5C15.5 3.22386 15.7239 3 16 3Z"
+                  fill="#f08000"></path>
+              </g>
+            </svg></span>
+          <span class="label">홈</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="c_7_view.html">
+          <span class="icon"><svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <path
+                  d="M18 8C18 9.10457 17.1046 10 16 10C14.8954 10 14 9.10457 14 8C14 6.89543 14.8954 6 16 6C17.1046 6 18 6.89543 18 8Z"
+                  fill="#f08000"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M11.9426 1.25H12.0574C14.3658 1.24999 16.1748 1.24998 17.5863 1.43975C19.031 1.63399 20.1711 2.03933 21.0659 2.93414C21.9607 3.82895 22.366 4.96897 22.5603 6.41371C22.75 7.82519 22.75 9.63423 22.75 11.9426V12.0309C22.75 13.9397 22.75 15.5023 22.6463 16.7745C22.5422 18.0531 22.3287 19.1214 21.8509 20.0087C21.6401 20.4001 21.3812 20.7506 21.0659 21.0659C20.1711 21.9607 19.031 22.366 17.5863 22.5603C16.1748 22.75 14.3658 22.75 12.0574 22.75H11.9426C9.63423 22.75 7.82519 22.75 6.41371 22.5603C4.96897 22.366 3.82895 21.9607 2.93414 21.0659C2.14086 20.2726 1.7312 19.2852 1.51335 18.0604C1.29935 16.8573 1.2602 15.3603 1.25207 13.5015C1.25 13.0287 1.25 12.5286 1.25 12.001L1.25 11.9426C1.24999 9.63423 1.24998 7.82519 1.43975 6.41371C1.63399 4.96897 2.03933 3.82895 2.93414 2.93414C3.82895 2.03933 4.96897 1.63399 6.41371 1.43975C7.82519 1.24998 9.63423 1.24999 11.9426 1.25ZM6.61358 2.92637C5.33517 3.09825 4.56445 3.42514 3.9948 3.9948C3.42514 4.56445 3.09825 5.33517 2.92637 6.61358C2.75159 7.91356 2.75 9.62178 2.75 12C2.75 12.5287 2.75 13.0257 2.75205 13.4949C2.76025 15.369 2.80214 16.7406 2.99017 17.7978C3.17436 18.8333 3.48774 19.4981 3.9948 20.0052C4.56445 20.5749 5.33517 20.9018 6.61358 21.0736C7.91356 21.2484 9.62178 21.25 12 21.25C14.3782 21.25 16.0864 21.2484 17.3864 21.0736C18.6648 20.9018 19.4355 20.5749 20.0052 20.0052C20.2151 19.7953 20.3872 19.5631 20.5302 19.2976C20.8619 18.6816 21.0531 17.8578 21.1513 16.6527C21.2494 15.4482 21.25 13.9459 21.25 12C21.25 9.62178 21.2484 7.91356 21.0736 6.61358C20.9018 5.33517 20.5749 4.56445 20.0052 3.9948C19.4355 3.42514 18.6648 3.09825 17.3864 2.92637C16.0864 2.75159 14.3782 2.75 12 2.75C9.62178 2.75 7.91356 2.75159 6.61358 2.92637Z"
+                  fill="#f08000"></path>
+                <path opacity="0.4"
+                  d="M20.6069 19.1463L17.7765 16.599C16.737 15.6634 15.1889 15.5702 14.0446 16.3744L13.7464 16.5839C12.9513 17.1428 11.8695 17.0491 11.1822 16.3618L6.89252 12.0721C6.03631 11.2159 4.66289 11.1702 3.75162 11.9675L2.75049 12.8435C2.75077 13.0665 2.75128 13.2835 2.7522 13.4949C2.7604 15.369 2.80229 16.7406 2.99032 17.7978C3.17451 18.8333 3.48788 19.4981 3.99494 20.0052C4.5646 20.5749 5.33532 20.9018 6.61372 21.0736C7.9137 21.2484 9.62192 21.25 12.0001 21.25C14.3784 21.25 16.0866 21.2484 17.3866 21.0736C18.665 20.9018 19.4357 20.5749 20.0054 20.0052C20.2153 19.7953 20.3873 19.5631 20.5303 19.2976C20.5568 19.2485 20.5823 19.1981 20.6069 19.1463Z"
+                  fill="#f08000"></path>
+              </g>
+            </svg></span>
+          <span class="label">오늘 이야기</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="c_3_char_select.html">
+          <span class="icon"><svg width="24px" height="24px" viewBox="0 0 24 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <path opacity="0.6"
+                  d="M19.7165 20.3624C21.143 19.5846 22 18.5873 22 17.5C22 16.3475 21.0372 15.2961 19.4537 14.5C17.6226 13.5794 14.9617 13 12 13C9.03833 13 6.37738 13.5794 4.54631 14.5C2.96285 15.2961 2 16.3475 2 17.5C2 18.6525 2.96285 19.7039 4.54631 20.5C6.37738 21.4206 9.03833 22 12 22C15.1066 22 17.8823 21.3625 19.7165 20.3624Z"
+                  fill="#f08000"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M9.25 4C9.25 2.48122 10.4812 1.25 12 1.25C13.5188 1.25 14.75 2.48122 14.75 4C14.75 5.51878 13.5188 6.75 12 6.75C10.4812 6.75 9.25 5.51878 9.25 4Z"
+                  fill="#f08000"></path>
+                <path
+                  d="M8.22309 11.5741L6.04779 10.849C5.42206 10.6404 5 10.0548 5 9.39526C5 8.41969 5.89953 7.69249 6.85345 7.89691L8.75102 8.30353C8.85654 8.32614 8.9093 8.33744 8.96161 8.34826C10.966 8.76286 13.034 8.76286 15.0384 8.34826C15.0907 8.33744 15.1435 8.32614 15.249 8.30353L17.1465 7.8969C18.1005 7.69249 19 8.41969 19 9.39526C19 10.0548 18.5779 10.6404 17.9522 10.849L15.7769 11.5741C15.514 11.6617 15.3826 11.7055 15.2837 11.7666C14.9471 11.9743 14.7646 12.361 14.8182 12.753C14.834 12.8681 14.8837 12.9974 14.9832 13.256L16.23 16.4977C16.6011 17.4626 15.8888 18.4997 14.8549 18.4997C14.3263 18.4997 13.8381 18.2165 13.5758 17.7574L12 14.9997L10.4242 17.7574C10.1619 18.2165 9.67373 18.4997 9.14506 18.4997C8.11118 18.4997 7.39889 17.4626 7.77003 16.4977L9.01682 13.256C9.11629 12.9974 9.16603 12.8681 9.18177 12.753C9.23536 12.361 9.05287 11.9743 8.71625 11.7666C8.61741 11.7055 8.48597 11.6617 8.22309 11.5741Z"
+                  fill="#f08000"></path>
+              </g>
+            </svg></span>
+          <span class="label">내 친구</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="c_8_diary.html">
+          <span class="icon"><svg width="24px" height="24px" viewBox="0 0 24.00 24.00" fill="none"
+              xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0.00024000000000000003">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC"
+                stroke-width="1.008"></g>
+              <g id="SVGRepo_iconCarrier">
+                <path opacity="0.5"
+                  d="M3 8C3 5.17157 3 3.75736 3.87868 2.87868C4.75736 2 6.17157 2 9 2H15C17.8284 2 19.2426 2 20.1213 2.87868C21 3.75736 21 5.17157 21 8V16C21 18.8284 21 20.2426 20.1213 21.1213C19.2426 22 17.8284 22 15 22H9C6.17157 22 4.75736 22 3.87868 21.1213C3 20.2426 3 18.8284 3 16V8Z"
+                  fill="#f08000"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 2.01221V22.0111H7.25V2.01221H8.75Z"
+                  fill="#f08000">
+                </path>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M1.25 8C1.25 7.58579 1.58579 7.25 2 7.25H4C4.41421 7.25 4.75 7.58579 4.75 8C4.75 8.41421 4.41421 8.75 4 8.75H2C1.58579 8.75 1.25 8.41421 1.25 8ZM1.25 12C1.25 11.5858 1.58579 11.25 2 11.25H4C4.41421 11.25 4.75 11.5858 4.75 12C4.75 12.4142 4.41421 12.75 4 12.75H2C1.58579 12.75 1.25 12.4142 1.25 12ZM1.25 16C1.25 15.5858 1.58579 15.25 2 15.25H4C4.41421 15.25 4.75 15.5858 4.75 16C4.75 16.4142 4.41421 16.75 4 16.75H2C1.58579 16.75 1.25 16.4142 1.25 16Z"
+                  fill="#f08000"></path>
+                <path
+                  d="M10.75 6.5C10.75 6.08579 11.0858 5.75 11.5 5.75H16.5C16.9142 5.75 17.25 6.08579 17.25 6.5C17.25 6.91421 16.9142 7.25 16.5 7.25H11.5C11.0858 7.25 10.75 6.91421 10.75 6.5Z"
+                  fill="#f08000"></path>
+                <path
+                  d="M10.75 10C10.75 9.58579 11.0858 9.25 11.5 9.25H16.5C16.9142 9.25 17.25 9.58579 17.25 10C17.25 10.4142 16.9142 10.75 16.5 10.75H11.5C11.0858 10.75 10.75 10.4142 10.75 10Z"
+                  fill="#f08000"></path>
+              </g>
+            </svg></span>
+          <span class="label">내 일기</span>
+        </a>
+      </div>
+    </div>
+</body>
+<script>
+  const today = new Date();
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const formattedDate =
+    today.getFullYear() + "년 " +
+    (today.getMonth() + 1).toString().padStart(2, '0') + "월 " +
+    today.getDate().toString().padStart(2, '0') + "일 " +
+    "(" + days[today.getDay()] + ")";
+
+  $("#c_8 .diary-date").text(formattedDate);
+
+  let calendar;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    const calendarTitle = document.getElementById('calendarTitle');
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridWeek',
+      initialDate: today,
+      themeSystem: 'standard',
+      headerToolbar: false,
+      locale: 'ko',
+      selectable: true,
+
+      // 일정 데이터 백엔드에서 불러오기
+      events: function(fetchInfo, successCallback, failureCallback) {
+        $.ajax({
+          url: '/child/diary-events',
+          method: 'GET',
+          data: {
+            start: fetchInfo.startStr,
+            end: fetchInfo.endStr
+          },
+          success: function(response) {
+            successCallback(response.events);
+          },
+          error: function() {
+            failureCallback(new Error('일정 데이터를 불러오지 못했습니다.'));
+          }
+        });
+      },
+
+      // 요일 헤더 렌더링
+      dayHeaderContent: function (arg) {
+        const date = arg.date;
+        const dayNum = date.getDate();
+        const weekday = date.toLocaleDateString('ko-KR', { weekday: 'short' });
+        return { html: `<div class="fc-day-number">${dayNum}</div><div class="fc-weekday">${weekday}</div>` };
+      },
+
+      // 주말 색상 처리
+      dayCellDidMount: function (info) {
+        const day = info.date.getDay();
+        const dateStr = info.date.toISOString().split('T')[0];
+        if (day === 0) info.el.classList.add('fc-day-sun');
+        else if (day === 6) info.el.classList.add('fc-day-sat');
+      },
+
+      // 날짜 클릭 시 일기 데이터 불러오기
+      // 날짜 클릭 시 일기 데이터 불러오기
+      dateClick: function (info) {
+        calendar.changeView('dayGridWeek', info.dateStr);
+
+        $.ajax({
+          url: '/child/diary-entry',
+          method: 'GET',
+          data: { date: info.dateStr },
+          success: function(data) {
+            $(".ani-title").text(data.title);
+            $(".diary-weather").text("기분 " + data.weather);
+            $(".ani-details video source").attr("src", data.video_url);
+            $(".ani-details video")[0].load();
+          },
+          error: function() {
+            alert("해당 날짜의 일기 정보를 불러오지 못했습니다.");
+          }
+        });
+      }      ,
+
+      // 월 제목 갱신
+      datesSet: function (info) {
+        const date = new Date(info.start);
+        const year = date.getFullYear();
+        const month = date.toLocaleString('ko-KR', { month: 'long' });
+        calendarTitle.textContent = `${year}년 ${month}`;
+      }
+    });
+
+    calendar.render();
+
+    // 오늘 일기 초기 로딩
+    // 오늘 일기 초기 로딩
+    const todayStr = today.toISOString().split('T')[0];
+    $.ajax({
+      url: 'https://nfredmpfjwwrknjr.tunnel.elice.io/child/get_video_url', // ✅ 기존 URL로 통일
+      method: 'GET',
+      success: function(data) {
+        $(".ani-title").text("용감한 호랑이의 하루");
+        $(".diary-weather").text("기분 맑음 ☀️"); // 정적이면 유지, 동적이면 data.weather로 변경
+        $(".ani-details video source").attr("src", data.video_url); // ✅ src 설정
+        $(".ani-details video")[0].load(); // ✅ 로드 트리거
+      },
+      error: function() {
+        console.error("비디오 로드 실패");
+      }
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => calendar.prev());
+    document.getElementById('nextBtn').addEventListener('click', () => calendar.next());
+    document.getElementById('todayBtn').addEventListener('click', () => calendar.today());
+  });
+</script>
+
+</html>

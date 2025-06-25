@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv=X-UA-Compatible content="IE=edge">
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script type="text/javascript" src="../static/js/camera.js"></script>
+  <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+
+  <link rel="stylesheet" type="text/css" href="../static/css/index.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/subsets/AppleSDGothicNeo-dynamic-subset.css"
+    type="text/css" />
+
+  <title>영상통화</title>
+</head>
+
+  <!-- 듣는 모션 addClass .listen -->
+<body id="c_5">
+  <!-- 중앙 자막 박스 -->
+  <div id="subtitle" class="subtitle-hidden"></div>
+
+  <div class="char_wrap"><div class="character"></div></div>
+  <div class="filter"></div>
+
+  <div class="icon">
+    <p class="camera"><svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="none" viewBox="0 0 24 24">
+        <path stroke="#ffffff" stroke-linejoin="round" stroke-width="2"
+          d="M4 18V8a1 1 0 0 1 1-1h1.5l1.707-1.707A1 1 0 0 1 8.914 5h6.172a1 1 0 0 1 .707.293L17.5 7H19a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z" />
+        <path stroke="#ffffff" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      </svg>
+    </p>
+    <p class="mic"><dotlottie-player src="https://lottie.host/05d202ff-b9ec-4f8c-a248-b67bb7e0a19c/VlA4gVZFu8.lottie"
+        background="transparent" speed="1" style="width: 200px; height: 150px" loop autoplay></dotlottie-player></p>
+
+    <p class="voice"><dotlottie-player src="https://lottie.host/b92e9bcb-0297-4ece-a77b-41eafbd3a657/SoyjGyKh5b.lottie"
+        background="transparent" speed="2" style="width: 200px; height: 150px" loop autoplay></dotlottie-player></p>
+    <p class="close">
+      <a href="c_6_call_finish.html" onclick=sendStopSignal(e)>
+        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="#ffffff" viewBox="0 0 24 24">
+          <path d="M12.017 6.995c-2.306 0-4.534.408-6.215 1.507-1.737 1.135-2.788 2.944-2.797 5.451a4.8 4.8 0 0 0 .01.62c.015.193.047.512.138.763a2.557 2.557 0 0 0 2.579 1.677H7.31a2.685 2.685 0 0 0 2.685-2.684v-.645a.684.684 0 0 1 .684-.684h2.647a.686.686 0 0 1 .686.687v.645c0 .712.284 1.395.787 1.898.478.478 1.101.787 1.847.787h1.647a2.555 2.555 0 0 0 2.575-1.674c.09-.25.123-.57.137-.763.015-.2.022-.433.01-.617-.002-2.508-1.049-4.32-2.785-5.458-1.68-1.1-3.907-1.51-6.213-1.51Z" />
+        </svg>
+      </a>
+    </p> 
+  </div>
+
+  <video id="cameraview" autoplay playsinline muted></video>
+  <canvas id="overlay" style="position: absolute; top: 25; right: 25; z-index: 1000;"></canvas>
+
+
+</body>
+
+
+<style>
+
+#subtitle {
+  position: fixed !important;
+  top: 65% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background-color: rgba(0, 0, 0, 0.85) !important;
+  color: white !important;
+  padding: 16px 24px !important;
+  font-size: 1.6rem !important;
+  border-radius: 12px !important;
+  min-width: 95vw !important;
+  text-align: center !important;
+  z-index: 99999 !important;
+
+  white-space: pre-wrap !important;
+  line-height: 1.5 !important;
+  display: block
+}
+
+</style>
+
+<script>
+  // 자동으로 요약문 및 웹툰 생성
+    function sendStopSignal() {
+        // 서버에 영상 및 요약 생성을 요청하는 AJAX 호출
+        $.ajax({
+            url: '/child/generate-summary', // 요청할 서버 엔드포인트
+            method: 'POST', // 요청 방식
+            success: function(response) {
+                console.log('요약이 생성되었습니다:', response);
+                // 요청이 성공적으로 수행된 후의 동작을 여기에 추가할 수 있습니다.
+            },
+            error: function(error) {
+                console.error('요약 생성 실패:', error);
+            }
+        });
+        
+        // 화면 이동은 AJAX 요청과 상관없이 수행됨
+        window.location.href = 'c_6_call_finish.html'; // 링크 그대로 이동
+    }
+</script>
+
+
+</html>

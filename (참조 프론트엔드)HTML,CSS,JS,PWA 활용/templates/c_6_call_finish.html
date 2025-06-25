@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+  <link rel="stylesheet" href="../static/css/index.css" />
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/subsets/AppleSDGothicNeo-dynamic-subset.css" />
+  <title>전화종료</title>
+</head>
+<body id="c_6">
+  <section class="section1">
+    <div class="star">
+      <dotlottie-player
+        src="https://lottie.host/a16eb487-8fa2-42f0-b329-819dd523a28c/LvC0mp15um.lottie"
+        background="transparent"
+        speed="1"
+        style="width: 250px; height: 100px"
+        autoplay>
+      </dotlottie-player>
+    </div>
+
+    <h1>오늘도 즐거운 대화였어!</h1>
+
+    <div class="character">
+      <div class="effect">
+        <dotlottie-player
+          src="https://lottie.host/1106c9eb-b796-456e-8569-7c8543296910/4k74hE04fC.lottie"
+          background="transparent"
+          speed="0.5"
+          style="width: auto; height: 70%"
+          loop
+          autoplay>
+        </dotlottie-player>
+      </div>
+
+      <div class="container">
+        <img src="../static/images/tiger_great.png" alt="호랑이1" class="tiger tiger-old" />
+        <img src="../static/images/tiger_crown.png" alt="호랑이2" class="tiger tiger-new" />
+      </div>
+    </div>
+
+    <div class="progress">
+      <h2>친구랑 더 친해졌어요!</h2>
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div class="progress-label" id="progress-label">친밀도: 50%</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section2">
+    <div class="text">
+      <h2>짠! 네 이야기로 만든 특별한 웹툰을 준비했어!</h2>
+      <div class="choice-buttons">
+        <a href="#" id="later-btn" class="btn-secondary">다음에 볼래</a>
+        <a href="c_7_view.html" id="view-btn" class="btn-primary">지금 볼래!</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="bottom-nav">
+    <div class="nav-item">
+      <a href="c_1_home.html">
+        <span class="icon">🏠</span>
+        <span class="label">홈</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="c_7_view.html">
+        <span class="icon">📖</span>
+        <span class="label">오늘 이야기</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="c_3_char_select.html">
+        <span class="icon">🐯</span>
+        <span class="label">내 친구</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="c_8_diary.html">
+        <span class="icon">📔</span>
+        <span class="label">내 일기</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // 캐릭터 업그레이드 애니메이션
+    setTimeout(() => {
+      document.querySelector('.container')?.classList.add('upgrade');
+    }, 1500);
+
+    // 친밀도 프로그래스 바
+    const bar = document.getElementById("progress-bar");
+    const label = document.getElementById("progress-label");
+
+    setTimeout(() => {
+      bar.style.width = "70%";
+      label.textContent = "친밀도: 70%";
+    }, 2200);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const viewBtn = document.getElementById("view-btn");
+      const laterBtn = document.getElementById("later-btn");
+      const startTime = localStorage.getItem("viewBtnStartTime");
+
+      // 타이머 복구
+      if (startTime) {
+        const elapsed = Math.floor((Date.now() - parseInt(startTime, 10)) / 1000);
+        const remaining = 420 - elapsed;  // ← 420초로 변경된 값 반영
+        if (remaining > 0) {
+          startCountdown(remaining);
+          viewBtn.disabled = true;
+          viewBtn.style.opacity = "0.4";
+          viewBtn.textContent = "웹툰 생성 중...";
+        } else {
+          localStorage.removeItem("viewBtnStartTime");
+        }
+      }
+
+      // 버튼 클릭 시 웹툰 생성 시작
+      viewBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        if (localStorage.getItem("viewBtnStartTime")) return;
+
+        // 타이머 기록 및 시작
+        localStorage.setItem("viewBtnStartTime", Date.now().toString());
+        startCountdown(420); // 7분 타이머
+
+        // UI 비활성화
+        viewBtn.disabled = true;
+        viewBtn.style.opacity = "0.4";
+        viewBtn.textContent = "웹툰 생성 중...";
+
+        // 웹툰 생성 요청
+        fetch("https://nfredmpfjwwrknjr.tunnel.elice.io/child/webtoon", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        }).then(() => {
+          localStorage.removeItem("viewBtnStartTime");
+          viewBtn.disabled = false;
+          viewBtn.style.opacity = "1";
+          viewBtn.textContent = "지금 볼래!";
+          alert("웹툰 생성이 완료되었습니다!");
+        }).catch(err => {
+          console.error("웹툰 생성 요청 실패:", err);
+          viewBtn.disabled = false;
+          viewBtn.style.opacity = "1";
+          viewBtn.textContent = "생성 실패. 다시 시도해주세요";
+        });
+      });
+
+      // 다음에 보기
+      laterBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.href = "c_1_home.html";
+      });
+    });
+
+    // 타이머 함수
+    function startCountdown(remaining) {
+      const viewBtn = document.getElementById("view-btn");
+
+      const countdown = setInterval(() => {
+        if (remaining <= 0) {
+          clearInterval(countdown);
+          localStorage.removeItem("viewBtnStartTime");
+          viewBtn.disabled = false;
+          viewBtn.style.opacity = "1";
+          viewBtn.textContent = "지금 볼래!";
+        } else {
+          const min = Math.floor(remaining / 60);
+          const sec = (remaining % 60).toString().padStart(2, '0');
+          viewBtn.textContent = `지금 볼래! (${min}:${sec})`;
+        }
+        remaining--;
+      }, 1000);
+    }
+
+  </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+# 프론트 엔드 화면별로 라우터 구성 
 # 각 화면별 라우터를 모두 집합하는 코드 
 from fastapi import APIRouter
 from .c3_char_select.router import router as c3_char_selecter

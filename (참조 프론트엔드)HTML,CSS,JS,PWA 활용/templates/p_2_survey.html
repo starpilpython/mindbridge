@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=yes">
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <link rel="stylesheet" type="text/css" href="../static/css/index.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/subsets/AppleSDGothicNeo-dynamic-subset.css"
+        type="text/css" />
+
+    <title>우리아이 성향검사</title>
+</head>
+
+<body id="p_2">
+    <header class="parent_header">
+        <div class="header_wrap">
+            <button class="prev" onclick="history.go(-1)" aria-label="뒤로가기">
+                <!-- 아이콘 -->
+                <svg width="45px" height="45px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 12H18M6 12L11 7M6 12L11 17" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="contents">
+    <h2 class="question-desc">
+      우리아이 성향은 어떤가요?
+    </h2>
+  
+    <div id="question-container"></div>
+
+      <a class="submit-button" href="p_3_recommend.html">입력하기</a>
+    </div>
+  
+  </body>
+  <script>
+
+function selectOption(selectedEl) {
+      const parent = selectedEl.parentNode;
+      const options = parent.querySelectorAll('.option');
+      options.forEach(opt => opt.classList.remove('selected'));
+      selectedEl.classList.add('selected');
+    }
+
+    const questions = [
+      "보통 혼자 노는 편이에요.",
+      "활발하고 밖에서 노는 것을 좋아해요.",
+      "놀이나 활동을 하기 전에 한동안 지켜보는 편이에요.",
+      "여러 사람들과 함께 있는 것을 좋아해요.",
+      "혼자 혹은 소수의 친구와 노는 것을 더 좋아해요.",
+      "자기가 한 일을 바로 이야기해요.",
+      "오랜 시간 여럿과 함께 있으면 피곤해하거나 짜증을 내요.",
+      "자신의 생각을 말로 표현하는 걸 좋아해요.",
+      "낯선 사람을 불편해해요.",
+      "다른 사람에게 먼저 말을 걸어요.",
+      "자기만의 공간을 좋아해요.",
+      "방에 혼자 있는 걸 싫어해요.",
+      "밖에서 친구들과 뛰어노는 것보다 혼자 있는 걸 좋아해요.",
+      "느낀 점을 잘 이야기해요.",
+      "자기 생각이나 느낌을 표현하기 어려워해요.",
+      "칭찬을 받는 걸 좋아해요.",
+      "가족과는 잘 이야기하지만 낯선 사람과는 어려워해요."
+    ];
+
+    const container = document.getElementById("question-container");
+
+    questions.forEach((text, index) => {
+      const box = document.createElement("div");
+      box.className = "question-box";
+      box.innerHTML = `
+        <div class="question-title">Q${index + 1}.</div>
+        <div class="question">${text}</div>
+        <div class="options">
+          <div class="option" onclick="selectOption(this)">
+            <div class="circle"></div>
+            <div class="label">전혀<br>아니다</div>
+          </div>
+          <div class="option" onclick="selectOption(this)">
+            <div class="circle"></div>
+            <div class="label">약간<br>아니다</div>
+          </div>
+          <div class="option" onclick="selectOption(this)">
+            <div class="circle"></div>
+            <div class="label">보통이다</div>
+          </div>
+          <div class="option" onclick="selectOption(this)">
+            <div class="circle"></div>
+            <div class="label">약간<br>그렇다</div>
+          </div>
+          <div class="option" onclick="selectOption(this)">
+            <div class="circle"></div>
+            <div class="label">매우<br>그렇다</div>
+          </div>
+        </div>
+      `;
+      container.appendChild(box);
+    });
+
+  </script>
+
+</html>

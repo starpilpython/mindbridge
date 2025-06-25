@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>우리아이 감정 대시보드</title>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../static/css/index.css" />
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/subsets/AppleSDGothicNeo-dynamic-subset.css"
+    type="text/css" />
+  <style>
+    #p_6 .modern-header {
+      height: 65px;
+      z-index: 1000;
+    }
+
+    #p_6 .header-left .prev {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      cursor: pointer;
+    }
+
+    #p_6 .header-center {
+      flex: 1;
+      text-align: center;
+    }
+
+    #p_6 .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-right: 31px;
+    }
+
+    #p_6 .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    #p_6 .top-summary {
+      background-color: #ede9fe;
+      padding: 20px 30px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    #p_6 .top-summary h2 {
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    #p_6 .top-summary p {
+      line-height: 1.8;
+    }
+
+    #p_6 .summary {
+      margin: 30px 20px 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 30px;
+    }
+
+    #p_6 .summary:last-of-type {
+      border: none;
+    }
+
+
+    #p_6 .summary h2,
+    #p_6 .chart-box h3 {
+      margin-top: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    #p_6 .summary p {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    #p_6 .markdown-content {
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.7;
+    }
+
+    #p_6 .chart-section {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .summary a.button {
+      background: #7d6ab2;
+      color: #fff;
+      padding: 7px 10px;
+      width: 50%;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    #p_6 .card h4 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    #p_6 .card p {
+      font-size: 14px;
+      color: #334155;
+    }
+
+    #p_6 .card a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    #p_6 .test-card {
+      margin-top: 10px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    #p_6 .tag {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      color: white;
+    }
+
+    #p_6 .tag.red {
+      background-color: #7d6ab2;
+    }
+
+    #p_6 .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    #p_6 .badge {
+      background-color: #ede9fe;
+      color: #6b21a8;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+    #p_6 .img img {
+      margin-top: 12px;
+      border-radius: 8px;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+
+</head>
+
+<body id="p_6">
+  <header class="modern-header">
+    <div class="header-left">
+      <a class="prev" onclick="history.go(-1)" aria-label="뒤로가기">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 12H18M6 12L11 7M6 12L11 17" stroke="#333" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </a>
+    </div>
+    <div class="header-center">
+      <span class="page-title">날짜 자리</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="top-summary"></div>
+    <div class="chart-section summary">
+      <div class="chart-box">
+        <h3>표정을 통한 감정 비율</h3>
+        <canvas id="emotionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="summary" id="child-story">
+      <h2>우리아이 이야기</h2>
+      <p></p>
+      <a href="#" class="button">우리아이 웹툰 보러가기 →</a>
+    </div>
+
+    <div class="summary" id="child-opinion">
+      <h2>상담 소견</h2>
+      <div class="markdown-content"></div>
+    </div>
+
+    <div class="chart-section summary">
+      <h3>요일별 감정 비율 추이</h3>
+      <canvas id="lineChart"></canvas>
+    </div>
+    <div class="summary">
+      <h4>이야기를 통한 추천 활동</h4>
+      <div class="test-card">
+        <div class="tag red">추천 장소</div>
+        <h3 style="font-size:16px;">그림책마을 [산포애서]</h3>
+        <p class="info">감각적이고 편안한 공간에서 아이와 함께 그림책을 볼 수 있는 북카페</p>
+        <p class="desc">정서 안정 · 문화 감수성 · 부모와의 유대감 강화</p>
+
+        <div class="badges">
+          <span class="badge">북카페</span>
+          <span class="badge">정서</span>
+          <span class="badge">문화체험</span>
+          <span class="badge">부모참여</span>
+        </div>
+
+        <!-- 대표 이미지 -->
+        <div class="img" style="height: 200px;overflow: hidden;border-radius: 8px;">
+          <img
+            src="https://image.mom-mom.net/eyJidWNrZXQiOiJtb21tb20tbW9tc3RvdWNoIiwia2V5IjoicGxhY2VzLzY4MjMzNGM4NDc1MjUyMzgwMGUxNzQ2MC5qcGVnIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjozNzUsImhlaWdodCI6NTAwfX19"
+            alt="산포애서 이미지" style="width: 100%;">
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const emotionDescriptions = {
+        "행복": "마음이 편안하고 기분이 좋아요. 웃음이 나고 즐거운 일이 있었을 때 느껴요.",
+        "슬픔": "속상하거나 마음이 아플 때 생기는 감정이에요. 눈물이 나거나 조용히 있고 싶을 수 있어요.",
+        "분노": "무언가 마음에 들지 않아서 화가 나는 상태예요. 말이나 행동이 거칠어질 수 있어요.",
+        "두려움": "무섭거나 걱정돼서 가슴이 두근거리는 감정이에요. 낯선 상황에서 자주 나타나요.",
+        "놀람": "예상하지 못한 일이 생겨서 깜짝 놀라는 상태예요. 좋은 일일 수도 있고 아닐 수도 있어요.",
+        "혐오": "어떤 것이 불쾌하거나 보기 싫게 느껴질 때 생기는 감정이에요. 가까이하고 싶지 않아요.",
+        "중립": "마음이 차분하고 특별한 감정이 없을 때 느껴요. 안정되고 평온한 상태예요."
+      };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const dateParam = params.get("date");
+
+      if (!dateParam) {
+        alert("날짜 정보가 없습니다.");
+        return;
+      }
+
+      fetch(`https://nfredmpfjwwrknjr.tunnel.elice.io/parent/child_summary_detail?date=${encodeURIComponent(dateParam)}`)
+        .then(res => res.json())
+        .then(data => {
+          // 제목 반영
+          document.querySelector(".page-title").textContent = `우리 아이 ${data.date} 감정 이야기`;
+
+          // 감정 요약 반영
+          const summaryBox = document.querySelector(".top-summary");
+          summaryBox.innerHTML = `<h2>우리아이 감정</h2>`;
+          const emotionMap = {
+            "행복": "😊",
+            "슬픔": "😢",
+            "분노": "😠",
+            "두려움": "😨",
+            "놀람": "😲",
+            "혐오": "🤢",
+            "중립": "😐"
+          };
+          const total = Object.values(data.top_counts).reduce((a, b) => a + b, 0);
+
+          for (const [emotion, count] of Object.entries(data.top_counts)) {
+            const emoji = emotionMap[emotion] || "";
+            const percent = ((count / total) * 100).toFixed(1);
+            const desc = emotionDescriptions[emotion] || "";
+            summaryBox.innerHTML += `
+              <p>${emoji} <strong>${emotion}</strong>(${percent}%) - ${desc}</p>
+            `;
+          }
+
+          // 아이 이야기 삽입
+          document.querySelector("#child-story p").textContent = data.text_summary;
+
+          // 상담 소견 삽입 (마크다운 가능)
+          const markdown = window.marked ? marked.parse(data.opinion_summary) : data.opinion_summary;
+          document.querySelector("#child-opinion .markdown-content").innerHTML = markdown;;
+
+          // 감정 바 차트
+          const labels = Object.keys(data.emotion_counts);
+          const values = Object.values(data.emotion_counts);
+          const baseColors = ['#3b82f6', '#ef4444', '#facc15', '#a78bfa', '#34d399', '#94a3b8', '#9ca3af'];
+
+          const ctx = document.getElementById('emotionChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: '오늘 감정 비율',
+                data: values,
+                backgroundColor: baseColors.slice(0, labels.length),
+                borderRadius: 6
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    stepSize: 1
+                  }
+                }
+              }
+            }
+          });
+        })
+        .catch(err => {
+          console.error("상세 데이터 로드 실패:", err);
+          alert("감정 데이터를 불러오지 못했습니다.");
+        });
+    });
+
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+    new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: ['월', '화', '수', '목', '금', '토', '일'],
+        datasets: [
+          {
+            label: '긍정적 감정',
+            data: [40, 50, 45, 60, 55, 58, 52],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: '부정적 감정',
+            data: [20, 18, 22, 15, 17, 12, 16],
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: '중립 감정',
+            data: [40, 32, 33, 25, 28, 30, 32],
+            borderColor: '#9ca3af',
+            backgroundColor: 'rgba(156, 163, 175, 0.2)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            title: {
+              display: true,
+              text: '비율 (%)'
+            }
+          }
+        }
+      }
+    });
+
+
+
+    </script>
+
+</body>
+
+</html>

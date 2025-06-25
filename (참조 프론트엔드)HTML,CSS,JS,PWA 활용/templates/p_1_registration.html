@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=yes">
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <link rel="stylesheet" type="text/css" href="../static/css/index.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/subsets/AppleSDGothicNeo-dynamic-subset.css"
+        type="text/css" />
+
+    <title>우리아이 등록</title>
+</head>
+
+<body id="p_1">
+    <div class="contents">
+        <h2 class="title">우리아이에 대해<br>알려주세요!</h2>
+        <div class="form-group">
+            <!-- 이미지 클릭하면 파일 업로드 -->
+            <div class="profile-wrapper" onclick="document.getElementById('child-photo').click()">
+                <img id="preview" src="../static/images/user.svg" alt="기본 프로필">
+                <span class="camera-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <circle cx="12" cy="13" r="3" stroke="#fff" stroke-width="1.5"></circle>
+                            <path
+                                d="M2 13.3636C2 10.2994 2 8.76721 2.74902 7.6666C3.07328 7.19014 3.48995 6.78104 3.97524 6.46268C4.69555 5.99013 5.59733 5.82123 6.978 5.76086C7.63685 5.76086 8.20412 5.27068 8.33333 4.63636C8.52715 3.68489 9.37805 3 10.3663 3H13.6337C14.6219 3 15.4728 3.68489 15.6667 4.63636C15.7959 5.27068 16.3631 5.76086 17.022 5.76086C18.4027 5.82123 19.3044 5.99013 20.0248 6.46268C20.51 6.78104 20.9267 7.19014 21.251 7.6666C22 8.76721 22 10.2994 22 13.3636C22 16.4279 22 17.9601 21.251 19.0607C20.9267 19.5371 20.51 19.9462 20.0248 20.2646C18.9038 21 17.3433 21 14.2222 21H9.77778C6.65675 21 5.09624 21 3.97524 20.2646C3.48995 19.9462 3.07328 19.5371 2.74902 19.0607C2.53746 18.7498 2.38566 18.4045 2.27673 18"
+                                stroke="#fff" stroke-width="1.5" stroke-linecap="round"></path>
+                            <path d="M19 10H18" stroke="#fff" stroke-width="1.5" stroke-linecap="round"></path>
+                        </g>
+                    </svg></span>
+            </div>
+            <input type="file" id="child-photo" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label for="birthdate">생년월일<b>*</b></label>
+            <input type="text" id="birthdate" placeholder="예: 20150514" maxlength="8">
+        </div>
+
+        <div class="form-group">
+            <label>성별<b>*</b></label>
+            <div class="gender-options">
+                <label><input type="radio" name="gender" value="male"><span>아들</span></label>
+                <label><input type="radio" name="gender" value="female"><span>딸</span></label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>목소리 녹음</label>
+            <p>부모님의 목소리를 녹음해 주세요. 우리 아이가 화면에서 들을 수 있어요.</p>
+            <button class="record-button" onclick="toggleRecording()">녹음 시작</button>
+            <p id="record-status">녹음 대기 중</p>
+        </div>
+
+        <a class="submit-button" href="p_2_survey.html">등록하기</a>
+
+    </div>
+
+</body>
+
+<script>
+    let isRecording = false;
+
+    function toggleRecording() {
+        isRecording = !isRecording;
+        const status = document.getElementById('record-status');
+        const btn = document.querySelector('.record-button');
+        if (isRecording) {
+            btn.textContent = '녹음 중지';
+            status.textContent = '녹음 중...';
+        } else {
+            btn.textContent = '녹음 시작';
+            status.textContent = '녹음 완료';
+        }
+    }
+
+
+    // 프로필 사진 미리보기
+    document.getElementById('child-photo').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('preview');
+
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            $(".camera-icon").hide();
+            $("#p_1 #preview").css("padding", "0");
+            reader.onload = function (event) {
+                preview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const genderButtons = document.querySelectorAll('#p_1 .gender-options label');
+
+        genderButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                // 모든 버튼에서 active 제거
+                genderButtons.forEach(b => b.classList.remove('active'));
+
+                // 현재 클릭된 버튼에 active 추가
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
+
+</html>
